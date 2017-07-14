@@ -1,3 +1,8 @@
 language: node_js
 node_js:
-  - '6.10.2'
+- 6.10.2
+deploy:
+  provider: heroku
+  app: pond-finder
+  api_key:
+    secure: UJfVHk3PpL3iEN6JBuWW9JtxE8SCJ6/yGIEU0IWGWVKR7jbgzoVTuSZ2W6YaYcVFrUHOwpfy50XDsX4uADB637PYWY5EnQogY5p9ZK+dFOE3m03pRYnpD0Zuhe62kru9FOdF4qklSMwGxRPv9yXVio9T70gZzyy81jJU+81+QF/zsHN0nfsil99aEhqwefdZ4+WP40oe4+kc2XUTxx+XraJBXZV1clMGGD8RK12mcTTVbI2JRmFPTfrtmB0Ei4tPQpyFufYOGdk/V9+uv7LlRWRPV51qDEYOO1pkL/Vd2pM3n5C+fD7xw1OYt8lqQmoRSxkjyQ8DKMMvuthdQiBYzZ0k1gaUGYjJbGom1o3iwNtQV6+orVIujA6wNsBhI+Xz4ojEy2kN+A+wE7KHrkLYS/vA7UcBM447R9k95f5jNhDqAvG47y7Ptewge/I3yfGK61UMV9reywDnVrtPVQWb2ukGKNsBFSbF2+hnRdihp6rV33ZWyaXF07MNn5erTwKKjzXjGItWInPhpREZs0cz2lkJ2jdrk7FriSxhFhxxp+bnyu2z4giSXcld3b8jgo5dorT4h66nUbjTjgfpi61moG0snHVbalHXdJVcE8Tj/1vBRE509og20dePGjRiN5Qj4xZJNKSzWIwJJ3uvmPvpg3zFrYUyjMYwLh2s4zm3Qqo=
