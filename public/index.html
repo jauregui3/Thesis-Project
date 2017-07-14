@@ -12,6 +12,7 @@
     var game = new Phaser.Game(4000, 4000, Phaser.AUTO, null);
     game.state.add('Game', Game);
     game.state.start('Game');
+    window.game = game;
   })();
 </script>
 </body>
