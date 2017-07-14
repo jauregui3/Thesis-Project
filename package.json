@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/daberry/thesis-project/issues"
   },
-  "homepage": "https://github.com/daberry/thesis-project#readme"
+  "homepage": "https://github.com/daberry/thesis-project#readme",
+  "dependencies": {
+    "express": "^4.15.3"
+  }
 }
