@@ -10,18 +10,17 @@ function preload() {
 var cursors;
 var background;
 var sprite;
+var randX;
+var randY;
 
 function create() {
-  width = 600;
-  height = 600;
-  game.stage.backgroundColor = '#2d2d2d';
+  width = 0;
+  height = 0;
+  game.stage.backgroundColor = '#FF69B4';
 
+  game.world.setBounds(0, 0, 1920, 1920);
 
   game.physics.startSystem(Phaser.Physics.P2JS);
-
-  //  Make our game world 2000x2000 pixels in size (the default is to match the game size)
-  game.world.setBounds(0, 0, 2000, 2000);
-
 
   background = game.add.tileSprite(-width, -height, game.world.width, game.world.height, 'background');
   background.fixedToCamera = true;
@@ -34,13 +33,35 @@ function create() {
     sprite.scale.y = .5;
 
     sprite = game.add.sprite(game.world.randomX, game.world.randomY, 'green-triangle');
-    sprite.scale.x = .5;
-    sprite.scale.y = .5;
+    sprite.scale.x = .40;
+    sprite.scale.y = .40;
+    game.physics.p2.enable(sprite);
+    console.log(sprite.body)
+    sprite.body.data.damping = -.5;
+
+    randX = Math.floor(Math.random() * 100 + 300);
+    if (Math.random() > .5) {
+      randX = -randX;
+    }
+    randY = Math.floor(Math.random() * 100 + 300);
+    if (Math.random() > .5) {
+      randY = -randY;
+    }
+
+    sprite.body.velocity.x = randX;
+    sprite.body.velocity.y = randY;
+    // sprite.body.
+
   }
+
+
+
   sprite = game.add.sprite(400 , 300, 'red-circle');
-  sprite.animations.add('run');
-  sprite.animations.play('run', 15, true);
-  game.camera.follow(sprite, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
+  sprite.scale.x = .75;
+  sprite.scale.y = .75;
+
+
+  game.camera.follow(sprite, Phaser.Camera.FOLLOW_LOCKON);
 
   cursors = game.input.keyboard.createCursorKeys();
 
@@ -48,22 +69,18 @@ function create() {
 
 }
 
+// figure out key aliases
 function update() {
-
   sprite.body.setZeroVelocity();
 
-  if (cursors.up.isDown) {
-    sprite.body.moveUp(300);
-  }
-  else if (cursors.down.isDown) {
-    sprite.body.moveDown(300);
-  }
-
-  if (cursors.left.isDown) {
-    sprite.body.moveLeft(300);
-  }
-  else if (cursors.right.isDown) {
-    sprite.body.moveRight(300);
+  if (cursors.up.isDown || game.input.keyboard.isDown(Phaser.Keyboard.W)) {
+    sprite.body.moveUp(550);
+  } else if (cursors.down.isDown || game.input.keyboard.isDown(Phaser.Keyboard.S)) {
+    sprite.body.moveDown(550);
+  } if (cursors.left.isDown || game.input.keyboard.isDown(Phaser.Keyboard.A)) {
+    sprite.body.moveLeft(550);
+  } else if (cursors.right.isDown || game.input.keyboard.isDown(Phaser.Keyboard.D)) {
+    sprite.body.moveRight(550);
   }
 
   if (!game.camera.atLimit.x) {
@@ -72,13 +89,10 @@ function update() {
   if (!game.camera.atLimit.y) {
     background.tilePosition.y -= ((sprite.body.velocity.y) * game.time.physicsElapsed);
   }
-
 }
 
 function render() {
-
   game.debug.cameraInfo(game.camera, 32, 32);
-
 }
 
 module.exports = testVar;
