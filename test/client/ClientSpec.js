@@ -4,6 +4,6 @@ var expect = require('chai').expect;
 
 describe('client tests', function() {
   it('should pass a sanity test', function() {
-    expect(false).to.be.true; // force false test
+    expect(true).to.be.true;
   });
 });
