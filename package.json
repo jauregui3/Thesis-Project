@@ -21,7 +21,8 @@
   "homepage": "https://github.com/daberry/thesis-project#readme",
   "dependencies": {
     "chai": "^4.1.0",
+    "mocha": "^3.4.2",
     "express": "^4.15.3",
-    "mocha": "^3.4.2"
+    "socket.io": "^2.0.3"
   }
 }
