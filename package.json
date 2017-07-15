@@ -7,7 +7,7 @@
     "lib": "lib"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 0"
+    "test": "mocha test/client/ClientSpec.js && mocha test/server/ServerSpec.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,8 @@
   },
   "homepage": "https://github.com/daberry/thesis-project#readme",
   "dependencies": {
-    "express": "^4.15.3"
+    "chai": "^4.1.0",
+    "express": "^4.15.3",
+    "mocha": "^3.4.2"
   }
 }
