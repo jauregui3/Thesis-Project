@@ -30,15 +30,24 @@ function preload() {
 }
 
 var cursors;
+var background;
+var sprite;
 
 function create() {
   width = 600;
   height = 600;
   game.stage.backgroundColor = '#2d2d2d';
 
+
+  game.physics.startSystem(Phaser.Physics.P2JS);
+
   //  Make our game world 2000x2000 pixels in size (the default is to match the game size)
   game.world.setBounds(0, 0, 2000, 2000);
-  var background = game.add.tileSprite(-width, -height, game.world.width, game.world.height, 'background');
+
+
+  background = game.add.tileSprite(-width, -height, game.world.width, game.world.height, 'background');
+  background.fixedToCamera = true;
+
   for (var i = 0; i < 150; i++)
   {
     sprite = game.add.sprite(game.world.randomX, game.world.randomY, 'mushroom');
@@ -51,6 +60,8 @@ function create() {
 
   cursors = game.input.keyboard.createCursorKeys();
 
+  game.physics.p2.enable(sprite);
+
 }
 
 function changeTint() {
@@ -61,18 +72,27 @@ function changeTint() {
 
 function update() {
 
+  sprite.body.setZeroVelocity();
+
   if (cursors.up.isDown) {
-    sprite.position.y -= 4;
+    sprite.body.moveUp(300);
   }
   else if (cursors.down.isDown) {
-    sprite.position.y += 4;
+    sprite.body.moveDown(300);
   }
 
   if (cursors.left.isDown) {
-    sprite.position.x -= 4;
+    sprite.body.moveLeft(300);
   }
   else if (cursors.right.isDown) {
-    sprite.position.x += 4;
+    sprite.body.moveRight(300);
+  }
+
+  if (!game.camera.atLimit.x) {
+    background.tilePosition.x -= ((sprite.body.velocity.x) * game.time.physicsElapsed);
+  }
+  if (!game.camera.atLimit.y) {
+    background.tilePosition.y -= ((sprite.body.velocity.y) * game.time.physicsElapsed);
   }
 
 }
