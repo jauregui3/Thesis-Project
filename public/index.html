@@ -24,7 +24,8 @@ var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload:
 
 function preload() {
   game.load.image('background', 'asset/tileBackground.png');
-  game.load.image('mushroom', 'asset/sprites/mushroom2.png');
+  game.load.image('blue-square', 'asset/sprites/blue-square.png');
+  game.load.image('green-triangle', 'asset/sprites/green-triangle.png');
   game.load.image('ball', 'asset/sprites/green_ball.png');
   game.load.atlasJSONHash('bot', 'asset/sprites/running_bot.png', 'asset/sprites/running_bot.json');
 }
@@ -48,9 +49,16 @@ function create() {
   background = game.add.tileSprite(-width, -height, game.world.width, game.world.height, 'background');
   background.fixedToCamera = true;
 
-  for (var i = 0; i < 150; i++)
+  // in future cache image in var and only set random x-y in loop
+  for (var i = 0; i < 50; i++)
   {
-    sprite = game.add.sprite(game.world.randomX, game.world.randomY, 'mushroom');
+    sprite = game.add.sprite(game.world.randomX, game.world.randomY, 'blue-square');
+    sprite.scale.x = .5;
+    sprite.scale.y = .5;
+
+    sprite = game.add.sprite(game.world.randomX, game.world.randomY, 'green-triangle');
+    sprite.scale.x = .5;
+    sprite.scale.y = .5;
   }
   sprite = game.add.sprite(400 , 300, 'bot');
   sprite.animations.add('run');
