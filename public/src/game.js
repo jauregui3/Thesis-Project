@@ -1,3 +1,5 @@
+var testVar = 'client var';
+
 var socket;
 window.multiPlayers = {};
 var playerId;
@@ -150,3 +152,4 @@ function render() {
 
 }
 
+module.exports = testVar;
