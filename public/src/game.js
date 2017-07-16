@@ -73,6 +73,7 @@ function create() {
   sprite = game.add.sprite(400 , 300, 'red-circle');
   sprite.scale.x = .75;
   sprite.scale.y = .75;
+  sprite.tint = randomTint();
 
 
   game.camera.follow(sprite, Phaser.Camera.FOLLOW_LOCKON);
@@ -102,7 +103,7 @@ function create() {
       console.log('createMultiplayer: ', data);
       if (window.multiPlayers.hasOwnProperty(data.playerId) === false ) {
         console.log('no sprite with that Id exists --- creating');
-        var newSprite = initBot(data.x, data.y, 'bot', data.tint);
+        var newSprite = initBot(data.x, data.y, 'red-circle', data.tint);
         window.multiPlayers[data.playerId] = newSprite;
       }
     }
@@ -117,6 +118,15 @@ function create() {
 
   socket.emit('givePlayers', {});
 }
+
+function initBot(x, y, id, tint) {
+  var tempSprite = game.add.sprite(x, y, id);
+  tempSprite.tint = tint;
+  tempSprite.scale.x = 0.75;
+  tempSprite.scale.y = 0.75;
+  return tempSprite;
+}
+
 
 function update() {
   sprite.body.setZeroVelocity();
