@@ -1,6 +1,24 @@
 var testVar = 'client var';
 
+var socket;
+window.multiPlayers = {};
+var playerId;
+// var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+
+function socketUpdateTransmit(x, y, id) {
+  socket.emit('clientUpdate', {
+    x: x,
+    y: y,
+    playerId: playerId
+  });
+};
+
+function randomTint() {
+  return Math.random() * 0xffffff;
+}
+
 function preload() {
+  console.log('preload');
   game.load.image('background', 'asset/tileBackground.png');
   game.load.image('blue-square', 'asset/sprites/blue-square.png');
   game.load.image('green-triangle', 'asset/sprites/green-triangle.png');
@@ -36,7 +54,6 @@ function create() {
     sprite.scale.x = .40;
     sprite.scale.y = .40;
     game.physics.p2.enable(sprite);
-    console.log(sprite.body)
     sprite.body.data.damping = -.5;
 
     randX = Math.floor(Math.random() * 100 + 300);
@@ -51,10 +68,7 @@ function create() {
     sprite.body.velocity.x = randX;
     sprite.body.velocity.y = randY;
     // sprite.body.
-
   }
-
-
 
   sprite = game.add.sprite(400 , 300, 'red-circle');
   sprite.scale.x = .75;
@@ -62,14 +76,48 @@ function create() {
 
 
   game.camera.follow(sprite, Phaser.Camera.FOLLOW_LOCKON);
-
   cursors = game.input.keyboard.createCursorKeys();
-
   game.physics.p2.enable(sprite);
+  
+  socket = window.io();
 
+  socket.on('playerId', function(data) {
+    console.log('playerId event handler triggered');
+    playerId = data.playerId;
+    console.log('setting multiPlayers: ', playerId);
+    window.multiPlayers[playerId] = sprite;
+    socket.emit('createBot', {
+      x: sprite.x,
+      y: sprite.y,
+      playerId: playerId,
+      tint: sprite.tint
+    });
+  });
+
+  socket.on('createMultiplayer', function(data) {
+    console.log('createMultiplayer data=', data);
+    if (Object.keys(data).length === 0) {
+      console.log('create multiplayer empty object');
+    } else {
+      console.log('createMultiplayer: ', data);
+      if (window.multiPlayers.hasOwnProperty(data.playerId) === false ) {
+        console.log('no sprite with that Id exists --- creating');
+        var newSprite = initBot(data.x, data.y, 'bot', data.tint);
+        window.multiPlayers[data.playerId] = newSprite;
+      }
+    }
+    console.log('end of createMultiplayer');
+  });
+
+  socket.on('multiplayerUpdate', function(data) {
+    // console.log('multiplayerUpdate: ', data, window.multiPlayers);
+    window.multiPlayers[data.playerId].x = data.x;
+    window.multiPlayers[data.playerId].y = data.y;
+  });
+
+  socket.emit('givePlayers', {});
 }
 
-// figure out key aliases
 function update() {
   sprite.body.setZeroVelocity();
 
@@ -82,13 +130,15 @@ function update() {
   } else if (cursors.right.isDown || game.input.keyboard.isDown(Phaser.Keyboard.D)) {
     sprite.body.moveRight(550);
   }
-
+  
   if (!game.camera.atLimit.x) {
     background.tilePosition.x -= ((sprite.body.velocity.x) * game.time.physicsElapsed);
   }
   if (!game.camera.atLimit.y) {
     background.tilePosition.y -= ((sprite.body.velocity.y) * game.time.physicsElapsed);
   }
+  
+  socketUpdateTransmit(sprite.body.x, sprite.body.y);
 }
 
 function render() {
