@@ -3,7 +3,7 @@ var testVar = 'client var';
 var socket;
 window.multiPlayers = {};
 var playerId;
-var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+// var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 
 function socketUpdateTransmit(x, y, id) {
   socket.emit('clientUpdate', {
@@ -13,49 +13,72 @@ function socketUpdateTransmit(x, y, id) {
   });
 };
 
-
-
+function randomTint() {
+  return Math.random() * 0xffffff;
+}
 
 function preload() {
   console.log('preload');
   game.load.image('background', 'asset/tileBackground.png');
-  game.load.image('mushroom', 'asset/sprites/mushroom2.png');
-  game.load.image('ball', 'asset/sprites/green_ball.png');
-  game.load.atlasJSONHash('bot', 'asset/sprites/running_bot.png', 'asset/sprites/running_bot.json');
+  game.load.image('blue-square', 'asset/sprites/blue-square.png');
+  game.load.image('green-triangle', 'asset/sprites/green-triangle.png');
+  game.load.image('red-circle', 'asset/sprites/red-circle.png');
 }
 
 var cursors;
 var background;
 var sprite;
-
+var randX;
+var randY;
 
 function create() {
-  console.log('create');
-  width = 600;
-  height = 600;
-  game.stage.backgroundColor = '#2d2d2d';
+  width = 0;
+  height = 0;
+  game.stage.backgroundColor = '#FF69B4';
 
+  game.world.setBounds(0, 0, 1920, 1920);
 
   game.physics.startSystem(Phaser.Physics.P2JS);
-
-  //  Make our game world 2000x2000 pixels in size (the default is to match the game size)
-  game.world.setBounds(0, 0, 2000, 2000);
-
 
   background = game.add.tileSprite(-width, -height, game.world.width, game.world.height, 'background');
   background.fixedToCamera = true;
 
-  for (var i = 0; i < 150; i++)
+  // in future cache image in var and only set random x-y in loop
+  for (var i = 0; i < 50; i++)
   {
-    sprite = game.add.sprite(game.world.randomX, game.world.randomY, 'mushroom');
+    sprite = game.add.sprite(game.world.randomX, game.world.randomY, 'blue-square');
+    sprite.scale.x = .5;
+    sprite.scale.y = .5;
+
+    sprite = game.add.sprite(game.world.randomX, game.world.randomY, 'green-triangle');
+    sprite.scale.x = .40;
+    sprite.scale.y = .40;
+    game.physics.p2.enable(sprite);
+    sprite.body.data.damping = -.5;
+
+    randX = Math.floor(Math.random() * 100 + 300);
+    if (Math.random() > .5) {
+      randX = -randX;
+    }
+    randY = Math.floor(Math.random() * 100 + 300);
+    if (Math.random() > .5) {
+      randY = -randY;
+    }
+
+    sprite.body.velocity.x = randX;
+    sprite.body.velocity.y = randY;
+    // sprite.body.
   }
-  /*
-  sprite = game.add.sprite(400 , 300, 'bot');
-  sprite.animations.add('run');
-  sprite.animations.play('run', 15, true);
-  changeTint();
-  */
-  sprite = initBot(400, 300, 'bot', randomTint());
+
+  sprite = game.add.sprite(400 , 300, 'red-circle');
+  sprite.scale.x = .75;
+  sprite.scale.y = .75;
+
+
+  game.camera.follow(sprite, Phaser.Camera.FOLLOW_LOCKON);
+  cursors = game.input.keyboard.createCursorKeys();
+  game.physics.p2.enable(sprite);
+  
   socket = window.io();
 
   socket.on('playerId', function(data) {
@@ -92,64 +115,34 @@ function create() {
     window.multiPlayers[data.playerId].y = data.y;
   });
 
-
-
-  game.camera.follow(sprite, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
-
-  cursors = game.input.keyboard.createCursorKeys();
-
-  game.physics.p2.enable(sprite);
-
   socket.emit('givePlayers', {});
-
 }
-
-function randomTint() {
-  return Math.random() * 0xffffff;
-}
-
-function initBot (x, y, id, tint) {
-  var tempSprite = game.add.sprite(x, y, id);
-  tempSprite.tint = tint;
-  tempSprite.animations.add('run');
-  tempSprite.animations.play('run', 15, true);
-  return tempSprite;
-}
-
-
 
 function update() {
-
   sprite.body.setZeroVelocity();
 
-  if (cursors.up.isDown) {
-    sprite.body.moveUp(300);
+  if (cursors.up.isDown || game.input.keyboard.isDown(Phaser.Keyboard.W)) {
+    sprite.body.moveUp(550);
+  } else if (cursors.down.isDown || game.input.keyboard.isDown(Phaser.Keyboard.S)) {
+    sprite.body.moveDown(550);
+  } if (cursors.left.isDown || game.input.keyboard.isDown(Phaser.Keyboard.A)) {
+    sprite.body.moveLeft(550);
+  } else if (cursors.right.isDown || game.input.keyboard.isDown(Phaser.Keyboard.D)) {
+    sprite.body.moveRight(550);
   }
-  else if (cursors.down.isDown) {
-    sprite.body.moveDown(300);
-  }
-
-  if (cursors.left.isDown) {
-    sprite.body.moveLeft(300);
-  }
-  else if (cursors.right.isDown) {
-    sprite.body.moveRight(300);
-  }
-
+  
   if (!game.camera.atLimit.x) {
     background.tilePosition.x -= ((sprite.body.velocity.x) * game.time.physicsElapsed);
   }
   if (!game.camera.atLimit.y) {
     background.tilePosition.y -= ((sprite.body.velocity.y) * game.time.physicsElapsed);
   }
-
+  
   socketUpdateTransmit(sprite.body.x, sprite.body.y);
 }
 
 function render() {
-
   game.debug.cameraInfo(game.camera, 32, 32);
-
 }
 
 module.exports = testVar;
