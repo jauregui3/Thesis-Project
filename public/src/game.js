@@ -5,7 +5,7 @@ window.multiPlayers = {};
 var playerId;
 // var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 
-function socketUpdateTransmit(x, y, id) {
+function socketUpdateTransmit(x, y) {
   socket.emit('clientUpdate', {
     x: x,
     y: y,
@@ -83,9 +83,9 @@ function create() {
   socket = window.io();
 
   socket.on('playerId', function(data) {
-    console.log('playerId event handler triggered');
+    // console.log('playerId event handler triggered');
     playerId = data.playerId;
-    console.log('setting multiPlayers: ', playerId);
+    // console.log('setting multiPlayers: ', playerId);
     window.multiPlayers[playerId] = sprite;
     socket.emit('createBot', {
       x: sprite.x,
@@ -96,22 +96,25 @@ function create() {
   });
 
   socket.on('createMultiplayer', function(data) {
-    console.log('createMultiplayer data=', data);
+    // console.log('createMultiplayer data=', data);
     if (Object.keys(data).length === 0) {
-      console.log('create multiplayer empty object');
+      console.log('create multiplayer empty object OH NO!!!!!!!');
     } else {
-      console.log('createMultiplayer: ', data);
+      // console.log('createMultiplayer: ', data);
       if (window.multiPlayers.hasOwnProperty(data.playerId) === false ) {
         console.log('no sprite with that Id exists --- creating');
         var newSprite = initBot(data.x, data.y, 'red-circle', data.tint);
         window.multiPlayers[data.playerId] = newSprite;
       }
     }
-    console.log('end of createMultiplayer');
+    // console.log('end of createMultiplayer');
   });
 
   socket.on('multiplayerUpdate', function(data) {
     // console.log('multiplayerUpdate: ', data, window.multiPlayers);
+    if (window.multiPlayers[data.playerId] === undefined || window.multiPlayers[data.playerId] === {}) {
+      console.log('multiplayer update for non existant player: ', data.playerId, data);
+    }
     window.multiPlayers[data.playerId].x = data.x;
     window.multiPlayers[data.playerId].y = data.y;
   });
@@ -147,8 +150,12 @@ function update() {
   if (!game.camera.atLimit.y) {
     background.tilePosition.y -= ((sprite.body.velocity.y) * game.time.physicsElapsed);
   }
-  
-  socketUpdateTransmit(sprite.body.x, sprite.body.y);
+  if (playerId === null || playerId === undefined) {
+
+  } else {
+    socketUpdateTransmit(sprite.body.x, sprite.body.y);
+  }
+
 }
 
 function render() {
