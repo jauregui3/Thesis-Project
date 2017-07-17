@@ -1,7 +1,7 @@
 var testVar = 'client var';
 
 var socket;
-window = (window) ? window : global;
+var window = (window) ? window : global;
 window.multiPlayers = {};
 var playerId;
 var playerTint;
