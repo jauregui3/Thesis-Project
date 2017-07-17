@@ -1,6 +1,7 @@
 var testVar = 'client var';
 
 var socket;
+window = (window) ? window : global;
 window.multiPlayers = {};
 var playerId;
 var playerTint;
@@ -94,7 +95,7 @@ function create() {
   game.camera.follow(sprite, Phaser.Camera.FOLLOW_LOCKON);
   cursors = game.input.keyboard.createCursorKeys();
   game.physics.p2.enable(sprite);
-  
+
   socket = window.io();
 
   socket.on('playerId', function(data) {
@@ -159,7 +160,7 @@ function update() {
   } else if (cursors.right.isDown || game.input.keyboard.isDown(Phaser.Keyboard.D)) {
     sprite.body.moveRight(550);
   }
-  
+
   if (!game.camera.atLimit.x) {
     background.tilePosition.x -= ((sprite.body.velocity.x) * game.time.physicsElapsed);
   }
