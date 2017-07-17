@@ -15,11 +15,11 @@ server.listen(port, function () {
 });
 
 io.on('connection', function (socket) {
-  console.log('emiting playerId')
+  // console.log('emiting playerId');
   socket.emit('playerId', {
     playerId: players.length
   });
-  console.log('pushing new player to array');
+  // console.log('pushing new player to array');
   players.push({});
   socket.on('clientUpdate', function (data) {
     //console.log('client update',data, players);
@@ -27,7 +27,7 @@ io.on('connection', function (socket) {
   });
 
   socket.on('createBot', function (data) {
-    console.log('createBot', data);
+    // console.log('createBot', data);
     players[data.playerId] = data;
     /*
     playerObj['x'] = data.x;
@@ -44,15 +44,27 @@ io.on('connection', function (socket) {
   });
 
   socket.on('givePlayers', function () {
+
     players.map(function(cur) {
-      console.log('sending on givePlayers', cur);
-      socket.emit('createMultiplayer', {
-        x: cur.x,
-        y: cur.y,
-        playerId: cur.playerId,
-        tint: cur.tint
-      })
-    });
+      // console.log('sending on givePlayers', cur);
+      if(Object.keys(cur).length === 0) {
+        console.log('sending empty player oh no!!!');
+      } else if (cur.playerId === null || cur.playerId === undefined) {
+        console.log('inside of give players, playerId is undefined', cur);
+      } else {
+          socket.emit('createMultiplayer', {
+            x: cur.x,
+            y: cur.y,
+            playerId: cur.playerId,
+            tint: cur.tint
+          });
+        }
+      });
+  });
+
+  socket.on('disconnect', function(data) {
+    console.log('disconnect event triggered', data, JSON.stringify(data));
+    //take out of active list
   });
 
 });
