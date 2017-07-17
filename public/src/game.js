@@ -3,13 +3,15 @@ var testVar = 'client var';
 var socket;
 window.multiPlayers = {};
 var playerId;
+var playerTint;
 // var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 
 function socketUpdateTransmit(x, y) {
   socket.emit('clientUpdate', {
     x: x,
     y: y,
-    playerId: playerId
+    playerId: playerId,
+    tint: playerTint
   });
 };
 
@@ -30,6 +32,18 @@ var background;
 var sprite;
 var randX;
 var randY;
+
+function getSprite(playerIdToCheck, data) {
+  if (window.multiPlayers.hasOwnProperty(playerIdToCheck) === false) {
+    //create sprite
+    var newSprite = initBot(data.x, data.y, 'red-circle', data.tint);
+    window.multiPlayers[playerIdToCheck] = newSprite;
+    return newSprite;
+    //return sprite
+  } else {
+    return window.multiPlayers[playerIdToCheck];
+  }
+};
 
 function create() {
   width = 0;
@@ -74,6 +88,7 @@ function create() {
   sprite.scale.x = .75;
   sprite.scale.y = .75;
   sprite.tint = randomTint();
+  playerTint = sprite.tint;
 
 
   game.camera.follow(sprite, Phaser.Camera.FOLLOW_LOCKON);
@@ -101,22 +116,23 @@ function create() {
       console.log('create multiplayer empty object OH NO!!!!!!!');
     } else {
       // console.log('createMultiplayer: ', data);
+      getSprite(data.playerId, data);
+      /*
       if (window.multiPlayers.hasOwnProperty(data.playerId) === false ) {
         console.log('no sprite with that Id exists --- creating');
         var newSprite = initBot(data.x, data.y, 'red-circle', data.tint);
         window.multiPlayers[data.playerId] = newSprite;
       }
+      */
     }
     // console.log('end of createMultiplayer');
   });
 
   socket.on('multiplayerUpdate', function(data) {
     // console.log('multiplayerUpdate: ', data, window.multiPlayers);
-    if (window.multiPlayers[data.playerId] === undefined || window.multiPlayers[data.playerId] === {}) {
-      console.log('multiplayer update for non existant player: ', data.playerId, data);
-    }
-    window.multiPlayers[data.playerId].x = data.x;
-    window.multiPlayers[data.playerId].y = data.y;
+    var curSprite = getSprite(data.playerId, data);
+    curSprite.x = data.x;
+    curSprite.y = data.y;
   });
 
   socket.emit('givePlayers', {});
