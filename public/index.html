@@ -9,11 +9,21 @@
   <script src="src/game.js"></script>
 </head>
 <body>
+  <input id="nameInput" type="text"></input>
+  <button id="starter" onclick="gameStart()">StartGame</button>
 <div id="phaser-example">
 
 </div>
+
 <script>
-  var game = new Phaser.Game(window.innerWidth-20, window.innerHeight-20, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+  var game;
+  var playerName;
+  var gameStart = function() {
+    playerName = document.getElementById("nameInput").value;
+    document.getElementById("starter").style.visibility = "hidden";
+    document.getElementById("nameInput").style.visibility = "hidden";
+    game = new Phaser.Game(window.innerWidth-20, window.innerHeight-20, Phaser.CANVAS,
+     'phaser-example', { preload: preload, create: create, update: update, render: render });}
 </script>
 </body>
 </html>
