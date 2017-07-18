@@ -2,16 +2,16 @@ var testVar = 'client var';
 // module.exports = testVar; weird behavior
 var window = (window) ? window : global;
 
-window.multiPlayers = {};
-window.multiPlayers['textSprites'] = {};
+var activeUsers = {};
 
 var TEXTOFFSETX = 0;
 var TEXTOFFSETY = 50;
 var MPTEXTOFFSETX = 23;
 var MPTEXTOFFSETY = 23;
+
 var socket;
-var playerId;
-var playerTint;
+var ownId;
+var ownTint;
 var playerTextStyle = { font: "12px Arial", fill: "#ff0044", wordWrap: false };
 var cursors;
 var background;
@@ -64,7 +64,7 @@ function create() {
     sprite.scale.x = .75;
     sprite.scale.y = .75;
     sprite.tint = randomTint();
-    playerTint = sprite.tint;
+    ownTint = sprite.tint;
     text = game.add.text(230, 420, playerName, playerTextStyle);
     text.anchor.set(0.5);
     game.camera.follow(sprite, Phaser.Camera.FOLLOW_LOCKON);
@@ -74,40 +74,43 @@ function create() {
 
   socket = window.io(); // 1111111111111111111111111111111111111111111111111111
 
-  socket.on('playerId', function(data) { // 44444444444444444444444444444444444
-    playerId = data.playerId;
-    window.multiPlayers[playerId] = sprite;
-    window.multiPlayers['textSprites'][playerId] = text;
+  socket.on('joinedGame', function(myData) { // 44444444444444444444444444444444444
+    ownId = myData.id;
+    activeUsers[ownId] = sprite;
+    activeUsers[ownId].textSprite = text;
 
-    socket.emit('createBot', { // 555555555555555555555555555555555555555555555
+    socket.emit('initializeSelf', { // 555555555555555555555555555555555555555555555
+      id: ownId,
       x: sprite.x,
       y: sprite.y,
-      playerId: playerId,
-      tint: sprite.tint,
-      playerName: playerName
+      name: playerName,
+      color: ownTint
     });
   });
 
+
+
+
+
   // 88888888888888888888888888 || (end initialization) 12.12.12.12.12.12.12.12
-  socket.on('createMultiplayer', function(data) {
-    if (Object.keys(data).length === 0) {
-      console.log('logging from game.js line 95');
-    } else {
-      getSprite(data.playerId, data);
-    }
+  socket.on('activeUsersUpdate', function(singleUserData) {
+    var newSprite = game.add.sprite(singleUserData.x, singleUserData.y, singleUserData.name);
+    activeUsers[singleUserData.id] = newSprite;
   });
 
   //  (part of update loop)  15.15.15.15.15.15.15.15.15.15.15.15.15.15.15.15.15
-  socket.on('multiplayerUpdate', function(data) {
-    var curSprite = getSprite(data.playerId, data);
-    var textSprite = window.multiPlayers['textSprites'][data.playerId];
+  socket.on('multiplayerUpdate', function(someOtherClientsOwnData) {
+    var oneEntry = someOtherClientsOwnData;
+
+    var curSprite = getSprite(data.id, data);
+    var textSprite = activeUsers['textSprites'][data.id];
     textSprite.x = data.x + TEXTOFFSETX + MPTEXTOFFSETX;
     textSprite.y = data.y + TEXTOFFSETY + MPTEXTOFFSETY;
     curSprite.x = data.x;
     curSprite.y = data.y;
   });
 
-  socket.emit('givePlayers', {}); // 999999999999999999999999999999999999999999
+  socket.emit('listOfUsersFromAClient', activeUsers); // 999999999999999999999999999999999999999999
 }
 
 // (update loop emits 'clientUpdate') 13.13.13.13.13.13.13.13.13.13.13.13.13.13
@@ -128,24 +131,20 @@ function update() {
   if (!game.camera.atLimit.y) {
     background.tilePosition.y -= ((sprite.body.velocity.y) * game.time.physicsElapsed);
   }
-  if (playerId === null || playerId === undefined) {
+  if (ownId === null || ownId === undefined) {
 
   } else {
-    socketUpdateTransmit(sprite.body.x, sprite.body.y);
+    socket.emit('clientUpdate', {
+      x: sprite.body.x,
+      y: sprite.body.y,
+      id: ownId,
+      tint: ownTint,
+      name: playerName
+    });
   }
   text.x = Math.floor(sprite.x + TEXTOFFSETX);
   text.y = Math.floor(sprite.y + TEXTOFFSETY);
 }
-
-function socketUpdateTransmit(x, y) {
-  socket.emit('clientUpdate', {
-    x: x,
-    y: y,
-    playerId: playerId,
-    tint: playerTint,
-    playerName: playerName
-  });
-};
 
 function render() {/* game.debug.cameraInfo(game.camera, 32, 32);*/}
 
@@ -154,26 +153,6 @@ function render() {/* game.debug.cameraInfo(game.camera, 32, 32);*/}
 
 function randomTint() {
   return Math.random() * 0xffffff;
-}
-
-function getSprite(playerIdToCheck, data) {
-  if (window.multiPlayers.hasOwnProperty(playerIdToCheck) === false) {
-    var newSprite = initBot(data.x, data.y, 'red-circle', data.tint);
-    window.multiPlayers[playerIdToCheck] = newSprite;
-    var textSprite = game.add.text(data.x, data.y, data.playerName, playerTextStyle);
-    window.multiPlayers['textSprites'][playerIdToCheck] = textSprite;
-    return newSprite;
-  } else {
-    return window.multiPlayers[playerIdToCheck];
-  }
-}
-
-function initBot(x, y, id, tint) {
-  var tempSprite = game.add.sprite(x, y, id);
-  tempSprite.tint = tint;
-  tempSprite.scale.x = 0.75;
-  tempSprite.scale.y = 0.75;
-  return tempSprite;
 }
 
 module.exports = testVar;

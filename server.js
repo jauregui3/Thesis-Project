@@ -16,55 +16,36 @@ server.listen(port, function () {
 //_____________________________________________________________________________
 // Begin of Socket IO stuff
 
-var players = [];
-/*
-  { id: 'yX0TqQvwmdmvd_XUAAAA' },
-  { x: 400,
-    y: 300,
-    playerId: 1,
-    tint: 15754094.832733741,
-    playerName: 'asdf' }
-*/
+var activePlayers = {};
 
 io.on('connection', function(socket) { // 2222222222222222222222222222222222222
-  players.push({/*id: socket.id*/});
+  activePlayers[socket.id] = {id: socket.id};
+  console.log('someone new joined! Current list: ', activePlayers);
 
-  socket.emit('playerId', { // 333333333333333333333333333333333333333333333333
-    playerId: players.length
+  socket.to(socket.id).emit('joinedGame', { // 33333333333333333333333333333333
+    ownEntry: activePlayers[socket.id]
   });
 
-  socket.on('createBot', function (data) { // 666666666666666666666666666666666
-    players[data.playerId] = data;
-    socket.broadcast.emit('createMultiplayer', { // 777777777777777777777777777
-      x: data.x,
-      y: data.y,
-      playerId: data.playerId,
-      tint: data.tint,
-      playerName: data.playerName
-    });
+  socket.on('initializeSelf', function (singleUserData) { // 666666666666666666
+    activePlayers[singleUserData.id] = singleUserData;
+    socket.broadcast.emit('activeUsersUpdate', singleUserData); // 777777777777
   });
 
-  socket.on('givePlayers', function () { // 10.10.10.10.10.10.10.10.10.10.10.10
-    players.map(function(cur) {
-      // console.log('sending on givePlayers', cur);
-      if(Object.keys(cur).length === 0) {
-        console.log('sending empty player oh no!!!');
-      } else if (cur.playerId === null || cur.playerId === undefined) {
-        console.log('inside of give players, playerId is undefined', cur);
-      } else {
-        socket.emit('createMultiplayer', {  // 11.11.11.11.11.11.11.11.11.11.11
-          x: cur.x,
-          y: cur.y,
-          playerId: cur.playerId,
-          tint: cur.tint,
-          playerName: cur.playerName
-        });
-      }
-    });
+  // 10.10.10.10.10.10.10.10.10.10.10.10.10
+  socket.on('listOfUsersFromAClient', function (activeUsersFromAClient) {
+
+    // every time someone joins they will reset all the players?
+    for (var user in activeUsersFromAClient) {
+      activePlayers[user.id] =  user;
+    }
+
+    for (var player in activePlayers) {
+      socket.emit('activeUsersUpdate', player);   // 11.11.11.11.11.11.11.11.11
+    }
   });
 
-  socket.on('clientUpdate', function (data) {  // 14.14.14.14.14.14.14.14.14.14
-    socket.broadcast.emit('multiplayerUpdate', data);
+  socket.on('clientUpdate', function (oneClientsOwnData) {    // 14.14.14.14.14
+    socket.broadcast.emit('multiplayerUpdate', oneClientsOwnData);
   });
 
   socket.on('disconnect', function(data) {
