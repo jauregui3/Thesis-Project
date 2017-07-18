@@ -6,6 +6,12 @@ window.multiPlayers = {};
 window.multiPlayers['textSprites'] = {};
 var playerId;
 var playerTint;
+var playerTextStyle = { font: "12px Arial", fill: "#ff0044", wordWrap: false }; //removed backgroundColor: "#ffff00 wordWrapWidth: sprite.width, , align: "center"
+var TEXTOFFSETX = 0;
+var TEXTOFFSETY = 50;
+var MPTEXTOFFSETX = 23;
+var MPTEXTOFFSETY = 23;
+
 //var playerName = document.getElementById("nameInput").value;//this may be where we begin tracking playername
 // var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 
@@ -44,7 +50,7 @@ function getSprite(playerIdToCheck, data) {
     var newSprite = initBot(data.x, data.y, 'red-circle', data.tint); //, data.playerName
     // var textSprite =
     window.multiPlayers[playerIdToCheck] = newSprite;
-    var textSprite = game.add.text(data.x + 230, data.y + 420, data.playerName);
+    var textSprite = game.add.text(data.x, data.y, data.playerName, playerTextStyle);
     window.multiPlayers['textSprites'][playerIdToCheck] = textSprite;
     return newSprite;
     //return sprite
@@ -98,9 +104,8 @@ function create() {
   sprite.tint = randomTint();
   playerTint = sprite.tint;
 
-  var style = { font: "12px Arial", fill: "#ff0044", wordWrap: false }; //removed backgroundColor: "#ffff00 wordWrapWidth: sprite.width, , align: "center"
 
-    text = game.add.text(230, 420, playerName, style);
+    text = game.add.text(230, 420, playerName, playerTextStyle);
     text.anchor.set(0.5);
     //sprite.addChild(text);
 
@@ -148,8 +153,8 @@ function create() {
     // console.log('multiplayerUpdate: ', data, window.multiPlayers);
     var curSprite = getSprite(data.playerId, data);
     var textSprite = window.multiPlayers['textSprites'][data.playerId];
-    textSprite.x = data.x + 230;
-    textSprite.y = data.y + 420;
+    textSprite.x = data.x + TEXTOFFSETX + MPTEXTOFFSETX;
+    textSprite.y = data.y + TEXTOFFSETY + MPTEXTOFFSETY;
     curSprite.x = data.x;
     curSprite.y = data.y;
   });
@@ -196,8 +201,9 @@ function update() {
     socketUpdateTransmit(sprite.body.x, sprite.body.y);
   }
   //below anchoring text to sprite functionality testing????
-  text.x = Math.floor(-37 + sprite.x + sprite.width / 2);
-  text.y = Math.floor(sprite.y + sprite.height - 20);//text.y = Math.floor(sprite.y + sprite.height / 2);
+  console.log(sprite.width, sprite.height);
+  text.x = Math.floor(sprite.x + TEXTOFFSETX);
+  text.y = Math.floor(sprite.y + TEXTOFFSETY);//text.y = Math.floor(sprite.y + sprite.height / 2);
 }
 
 function render() {
