@@ -39,7 +39,8 @@ io.on('connection', function (socket) {
       x: data.x,
       y: data.y,
       playerId: data.playerId,
-      tint: data.tint
+      tint: data.tint,
+      playerName: data.playerName
     });
   });
 
@@ -56,7 +57,8 @@ io.on('connection', function (socket) {
             x: cur.x,
             y: cur.y,
             playerId: cur.playerId,
-            tint: cur.tint
+            tint: cur.tint,
+            playerName: cur.playerName
           });
         }
       });
