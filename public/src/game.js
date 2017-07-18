@@ -1,10 +1,18 @@
 var testVar = 'client var';
 
-var socket;
+var window = (window) ? window : global;
+var socket = window.io();
+
 window.multiPlayers = {};
 var playerId;
 var playerTint;
-// var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+
+var currentSocketId;
+
+window.onbeforeunload = sendUserData;
+function sendUserData() {
+  socket.emit('disconnectingUser', {id: currentSocketId});
+}
 
 function socketUpdateTransmit(x, y) {
   socket.emit('clientUpdate', {
@@ -32,18 +40,6 @@ var background;
 var sprite;
 var randX;
 var randY;
-
-function getSprite(playerIdToCheck, data) {
-  if (window.multiPlayers.hasOwnProperty(playerIdToCheck) === false) {
-    //create sprite
-    var newSprite = initBot(data.x, data.y, 'red-circle', data.tint);
-    window.multiPlayers[playerIdToCheck] = newSprite;
-    return newSprite;
-    //return sprite
-  } else {
-    return window.multiPlayers[playerIdToCheck];
-  }
-};
 
 function create() {
   width = 0;
@@ -94,49 +90,71 @@ function create() {
   game.camera.follow(sprite, Phaser.Camera.FOLLOW_LOCKON);
   cursors = game.input.keyboard.createCursorKeys();
   game.physics.p2.enable(sprite);
-  
-  socket = window.io();
-
-  socket.on('playerId', function(data) {
-    // console.log('playerId event handler triggered');
-    playerId = data.playerId;
-    // console.log('setting multiPlayers: ', playerId);
-    window.multiPlayers[playerId] = sprite;
-    socket.emit('createBot', {
-      x: sprite.x,
-      y: sprite.y,
-      playerId: playerId,
-      tint: sprite.tint
-    });
-  });
-
-  socket.on('createMultiplayer', function(data) {
-    // console.log('createMultiplayer data=', data);
-    if (Object.keys(data).length === 0) {
-      console.log('create multiplayer empty object OH NO!!!!!!!');
-    } else {
-      // console.log('createMultiplayer: ', data);
-      getSprite(data.playerId, data);
-      /*
-      if (window.multiPlayers.hasOwnProperty(data.playerId) === false ) {
-        console.log('no sprite with that Id exists --- creating');
-        var newSprite = initBot(data.x, data.y, 'red-circle', data.tint);
-        window.multiPlayers[data.playerId] = newSprite;
-      }
-      */
-    }
     // console.log('end of createMultiplayer');
-  });
 
-  socket.on('multiplayerUpdate', function(data) {
-    // console.log('multiplayerUpdate: ', data, window.multiPlayers);
-    var curSprite = getSprite(data.playerId, data);
-    curSprite.x = data.x;
-    curSprite.y = data.y;
-  });
 
   socket.emit('givePlayers', {});
 }
+
+function getSprite(playerIdToCheck, data) {
+  if (window.multiPlayers.hasOwnProperty(playerIdToCheck) === false) {
+    //create sprite
+    var newSprite = initBot(data.x, data.y, 'red-circle', data.tint);
+    window.multiPlayers[playerIdToCheck] = newSprite;
+    return newSprite;
+    //return sprite
+  } else {
+    return window.multiPlayers[playerIdToCheck];
+  }
+};
+
+socket.on('connect', function() {
+  currentSocketId = this.id;
+});
+
+socket.on('playerId', function(data) {
+  // console.log('playerId event handler triggered');
+  var sprite = game.add.sprite(400 , 300, 'red-circle');
+  sprite.scale.x = .75;
+  sprite.scale.y = .75;
+  sprite.tint = randomTint();
+  playerTint = sprite.tint;
+  playerId = data.playerId;
+
+  // console.log('setting multiPlayers: ', playerId);
+  window.multiPlayers[playerId] = sprite;
+  socket.emit('createBot', {
+    x: sprite.scale.x,
+    y: sprite.scale.y,
+    playerId: playerId,
+    tint: playerTint
+  });
+});
+
+socket.on('createMultiplayer', function(data) {
+  // console.log('createMultiplayer data=', data);
+  if (Object.keys(data).length === 0) {
+    console.log(data);
+    console.log('create multiplayer empty object OH NO!!!!!!!');
+  } else {
+    // console.log('createMultiplayer: ', data);
+    getSprite(data.playerId, data);
+    /*
+    if (window.multiPlayers.hasOwnProperty(data.playerId) === false ) {
+      console.log('no sprite with that Id exists --- creating');
+      var newSprite = initBot(data.x, data.y, 'red-circle', data.tint);
+      window.multiPlayers[data.playerId] = newSprite;
+    }
+    */
+  }
+});
+
+socket.on('multiplayerUpdate', function(data) {
+  // console.log('multiplayerUpdate: ', data, window.multiPlayers);
+  var curSprite = getSprite(data.playerId, data);
+  curSprite.x = data.x;
+  curSprite.y = data.y;
+});
 
 function initBot(x, y, id, tint) {
   var tempSprite = game.add.sprite(x, y, id);
@@ -159,7 +177,7 @@ function update() {
   } else if (cursors.right.isDown || game.input.keyboard.isDown(Phaser.Keyboard.D)) {
     sprite.body.moveRight(550);
   }
-  
+
   if (!game.camera.atLimit.x) {
     background.tilePosition.x -= ((sprite.body.velocity.x) * game.time.physicsElapsed);
   }
@@ -177,5 +195,7 @@ function update() {
 function render() {
   game.debug.cameraInfo(game.camera, 32, 32);
 }
+
+
 
 module.exports = testVar;

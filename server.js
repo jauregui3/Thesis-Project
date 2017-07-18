@@ -16,19 +16,35 @@ server.listen(port, function () {
 
 io.on('connection', function (socket) {
   // console.log('emiting playerId');
+  players.push({id: socket.id});
+
+  socket.on('disconnectingUser', function(id) {
+    console.log('disconnecting user id is: ', id);
+  })
+
   socket.emit('playerId', {
-    playerId: players.length
+    playerId: players[players.length - 1].id
   });
   // console.log('pushing new player to array');
-  players.push({});
   socket.on('clientUpdate', function (data) {
     //console.log('client update',data, players);
     socket.broadcast.emit('multiplayerUpdate', data);
   });
 
   socket.on('createBot', function (data) {
-    // console.log('createBot', data);
-    players[data.playerId] = data;
+    console.log('createBot', data);
+    var index = players.findIndex(function(item) {
+      return item.id === data.playerId;
+    });
+
+    players[index].x = data.x;
+    players[index].y = data.y;
+    players[index].tint = data.tint;
+
+    // players[data.playerId] = data;
+
+    // add x, y, and tint for this player entry
+
     /*
     playerObj['x'] = data.x;
     playerObj.y = data.y;
@@ -49,7 +65,7 @@ io.on('connection', function (socket) {
       // console.log('sending on givePlayers', cur);
       if(Object.keys(cur).length === 0) {
         console.log('sending empty player oh no!!!');
-      } else if (cur.playerId === null || cur.playerId === undefined) {
+      } else if (cur === null || cur === undefined) {
         console.log('inside of give players, playerId is undefined', cur);
       } else {
           socket.emit('createMultiplayer', {
