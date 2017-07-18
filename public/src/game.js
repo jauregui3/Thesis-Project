@@ -3,6 +3,7 @@ var testVar = 'client var';
 var socket;
 var window = (window) ? window : global;
 window.multiPlayers = {};
+window.multiPlayers['textSprites'] = {};
 var playerId;
 var playerTint;
 //var playerName = document.getElementById("nameInput").value;//this may be where we begin tracking playername
@@ -13,8 +14,8 @@ function socketUpdateTransmit(x, y) {
     x: x,
     y: y,
     playerId: playerId,
-    tint: playerTint
-    //playerName: playerName// may need to emit playerName
+    tint: playerTint,
+    playerName: playerName// may need to emit playerName
   });
 };
 
@@ -40,9 +41,11 @@ var randY;
 function getSprite(playerIdToCheck, data) {
   if (window.multiPlayers.hasOwnProperty(playerIdToCheck) === false) {
     //create sprite
-    var newSprite = initBot(data.x, data.y, 'red-circle', data.tint, data.playerName);
-    var textSprite =
+    var newSprite = initBot(data.x, data.y, 'red-circle', data.tint); //, data.playerName
+    // var textSprite =
     window.multiPlayers[playerIdToCheck] = newSprite;
+    var textSprite = game.add.text(data.x + 230, data.y + 420, data.playerName);
+    window.multiPlayers['textSprites'][playerIdToCheck] = textSprite;
     return newSprite;
     //return sprite
   } else {
@@ -144,6 +147,9 @@ function create() {
   socket.on('multiplayerUpdate', function(data) {
     // console.log('multiplayerUpdate: ', data, window.multiPlayers);
     var curSprite = getSprite(data.playerId, data);
+    var textSprite = window.multiPlayers['textSprites'][data.playerId];
+    textSprite.x = data.x + 230;
+    textSprite.y = data.y + 420;
     curSprite.x = data.x;
     curSprite.y = data.y;
   });
@@ -151,10 +157,10 @@ function create() {
   socket.emit('givePlayers', {});
 }
 
-function initBot(x, y, id, tint, newPlayerName) {
-  if (!newPlayerName) {
-    newPlayerName = 'NONCUSTOM USER LOL';
-  }
+function initBot(x, y, id, tint) { //, newPlayerName
+  // if (!newPlayerName) {
+  //   newPlayerName = 'NONCUSTOM USER LOL';
+  // }
   //var personGroup = game.addGroup();
   var tempSprite = game.add.sprite(x, y, id);
   tempSprite.tint = tint;
