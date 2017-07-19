@@ -14,6 +14,7 @@ window.onbeforeunload = function () {
 }
 
 function preload() {
+
   game.load.image('background', 'asset/tileBackground.png');
   game.load.image('blue-square', 'asset/sprites/blue-square.png');
   game.load.image('green-triangle', 'asset/sprites/green-triangle.png');
@@ -21,28 +22,29 @@ function preload() {
 }
 
 function create() {
+  // game.stage.disableVisibilityChange = true;
   game.world.setBounds(0, 0, 1920, 1920);
   game.physics.startSystem(Phaser.Physics.P2JS);
   background = game.add.tileSprite(0, 0, game.world.width, game.world.height, 'background');
   background.fixedToCamera = true;
 
-  for (var i = 0; i < 10; i++) {
-    sprite = game.add.sprite(game.world.randomX, game.world.randomY, 'blue-square');
-    sprite.scale.x = .5;
-    sprite.scale.y = .5;
+  // for (var i = 0; i < 10; i++) {
+  //   sprite = game.add.sprite(game.world.randomX, game.world.randomY, 'blue-square');
+  //   sprite.scale.x = .5;
+  //   sprite.scale.y = .5;
 
-    sprite = game.add.sprite(game.world.randomX, game.world.randomY, 'green-triangle');
-    sprite.scale.x = .40;
-    sprite.scale.y = .40;
-    game.physics.p2.enable(sprite);
-    sprite.body.data.damping = -.5;
-    var randX = Math.floor(Math.random() * 100 + 300);
-    if (Math.random() > .5) {randX = -randX;}
-    var randY = Math.floor(Math.random() * 100 + 300);
-    if (Math.random() > .5) {randY = -randY;}
-    sprite.body.velocity.x = randX;
-    sprite.body.velocity.y = randY;
-  }
+  //   sprite = game.add.sprite(game.world.randomX, game.world.randomY, 'green-triangle');
+  //   sprite.scale.x = .40;
+  //   sprite.scale.y = .40;
+  //   game.physics.p2.enable(sprite);
+  //   sprite.body.data.damping = -.5;
+  //   var randX = Math.floor(Math.random() * 100 + 300);
+  //   if (Math.random() > .5) {randX = -randX;}
+  //   var randY = Math.floor(Math.random() * 100 + 300);
+  //   if (Math.random() > .5) {randY = -randY;}
+  //   sprite.body.velocity.x = randX;
+  //   sprite.body.velocity.y = randY;
+  // }
 
   sprite = game.add.sprite(400 , 300, 'red-circle');
   sprite.scale.x = .75;

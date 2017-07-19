@@ -25,7 +25,6 @@ io.on('connection', function(socket) {
 
   socket.on('updateServer', function(oneUsersData) {
     players[oneUsersData.id] = oneUsersData;
-    // console.log(players);
   });
 
 
@@ -40,7 +39,6 @@ io.on('connection', function(socket) {
       return key === 'undefined';
     });
     keys.splice(index, 1);
-    // console.log('keys after splice: ', keys);
 
     keys.forEach(key => {
       if (players[key] !== null) {
