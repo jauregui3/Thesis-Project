@@ -1,27 +1,17 @@
 var testVar = 'client var';
 // module.exports = testVar; weird behavior
 var window = (window) ? window : global;
-
 var activeUsers = {};
-
-var TEXTOFFSETX = 0;
-var TEXTOFFSETY = 50;
-var MPTEXTOFFSETX = 23;
-var MPTEXTOFFSETY = 23;
-
 var socket;
-var ownId;
-var ownTint;
-var playerTextStyle = { font: "12px Arial", fill: "#ff0044", wordWrap: false };
+var sprite;
 var cursors;
 var background;
-var sprite;
 var text;
-var randX;
-var randY;
+var SOCKETID;
 
-//_____________________________________________________________________________
-// Main Game Functions
+window.onbeforeunload = function () {
+  socket.emit('disconnectingUser', {id: SOCKETID});
+}
 
 function preload() {
   game.load.image('background', 'asset/tileBackground.png');
@@ -31,91 +21,111 @@ function preload() {
 }
 
 function create() {
-  if (true) {
-    width = 0;
-    height = 0;
-    game.stage.backgroundColor = '#FF69B4';
-    game.world.setBounds(0, 0, 1920, 1920);
-    game.physics.startSystem(Phaser.Physics.P2JS);
-    background = game.add.tileSprite(-width, -height, game.world.width, game.world.height, 'background');
-    background.fixedToCamera = true;
+  game.world.setBounds(0, 0, 1920, 1920);
+  game.physics.startSystem(Phaser.Physics.P2JS);
+  background = game.add.tileSprite(0, 0, game.world.width, game.world.height, 'background');
+  background.fixedToCamera = true;
 
-    for (var i = 0; i < 50; i++) {
-      sprite = game.add.sprite(game.world.randomX, game.world.randomY, 'blue-square');
-      sprite.scale.x = .5;
-      sprite.scale.y = .5;
-      sprite = game.add.sprite(game.world.randomX, game.world.randomY, 'green-triangle');
-      sprite.scale.x = .40;
-      sprite.scale.y = .40;
-      game.physics.p2.enable(sprite);
-      sprite.body.data.damping = -.5;
-      randX = Math.floor(Math.random() * 100 + 300);
-      if (Math.random() > .5) {
-        randX = -randX;
-      }
-      randY = Math.floor(Math.random() * 100 + 300);
-      if (Math.random() > .5) {
-        randY = -randY;
-      }
-      sprite.body.velocity.x = randX;
-      sprite.body.velocity.y = randY;
-    }
-    sprite = game.add.sprite(400 , 300, 'red-circle');
-    sprite.scale.x = .75;
-    sprite.scale.y = .75;
-    sprite.tint = randomTint();
-    ownTint = sprite.tint;
-    text = game.add.text(230, 420, playerName, playerTextStyle);
-    text.anchor.set(0.5);
-    game.camera.follow(sprite, Phaser.Camera.FOLLOW_LOCKON);
-    cursors = game.input.keyboard.createCursorKeys();
+  for (var i = 0; i < 10; i++) {
+    sprite = game.add.sprite(game.world.randomX, game.world.randomY, 'blue-square');
+    sprite.scale.x = .5;
+    sprite.scale.y = .5;
+
+    sprite = game.add.sprite(game.world.randomX, game.world.randomY, 'green-triangle');
+    sprite.scale.x = .40;
+    sprite.scale.y = .40;
     game.physics.p2.enable(sprite);
+    sprite.body.data.damping = -.5;
+    var randX = Math.floor(Math.random() * 100 + 300);
+    if (Math.random() > .5) {randX = -randX;}
+    var randY = Math.floor(Math.random() * 100 + 300);
+    if (Math.random() > .5) {randY = -randY;}
+    sprite.body.velocity.x = randX;
+    sprite.body.velocity.y = randY;
   }
 
-  socket = window.io(); // 1111111111111111111111111111111111111111111111111111
+  sprite = game.add.sprite(400 , 300, 'red-circle');
+  sprite.scale.x = .75;
+  sprite.scale.y = .75;
+  sprite.tint = Math.random() * 0xffffff;
+  text = game.add.text(230, 420, playerName, {font:"12px Arial",fill:"#ff0044",wordWrap:false});
+  text.anchor.set(0.5);
+  game.physics.p2.enable(sprite);
 
-  socket.on('joinedGame', function(myData) { // 44444444444444444444444444444444444
-    ownId = myData.id;
-    activeUsers[ownId] = sprite;
-    activeUsers[ownId].textSprite = text;
+  game.camera.follow(sprite, Phaser.Camera.FOLLOW_LOCKON);
 
-    socket.emit('initializeSelf', { // 555555555555555555555555555555555555555555555
-      id: ownId,
+  socket = window.io();
+
+  socket.on('connect', function() {
+    SOCKETID = socket.id;
+
+    activeUsers[socket.id] = sprite;
+    activeUsers[socket.id].textSprite = text;
+    socket.emit('registerUser', {
+      id: socket.id,
       x: sprite.x,
       y: sprite.y,
       name: playerName,
-      color: ownTint
+      color: sprite.tint
     });
   });
 
+  socket.on('updateClient', function(activePlayersFromServer) {
+    // Weird behavior: When you use lines 146/147 (had them commented out for most of this)
+    // they seem to attatch to the wrong user. The one I control has the other one's label?
+    // Maybe this is a clue to why they are behaving weirdly, though I think it also might
+    // be a limitation of trying to test on one PC where I can only focus one screen at a
+    // time...
 
+    for (var userProp in activePlayersFromServer) {
+      if (!activeUsers[userProp]) {
+        var userSprite;
+        userSprite = game.add.sprite(activePlayersFromServer[userProp].x , activePlayersFromServer[userProp].y, 'red-circle');
+        userSprite.scale.x = .75;
+        userSprite.scale.y = .75;
+        userSprite.tint = activePlayersFromServer[userProp].color;
+        text = game.add.text(activePlayersFromServer[userProp].x, activePlayersFromServer[userProp].y,
+          activePlayersFromServer[userProp].name, {font:"12px Arial",fill:"#ff0044",wordWrap:false});
+        text.anchor.set(0.5);
+        game.physics.p2.enable(userSprite);
 
+        // add the sprite object to players
+        activeUsers[userProp] = userSprite;
+      } else if (userProp !== SOCKETID) {
+        activeUsers[userProp].x = activePlayersFromServer[userProp].x;
+        activeUsers[userProp].y = activePlayersFromServer[userProp].y;
+      }
+    }
 
+    /* console.log(activePlayers) ->
 
-  // 88888888888888888888888888 || (end initialization) 12.12.12.12.12.12.12.12
-  socket.on('activeUsersUpdate', function(singleUserData) {
-    var newSprite = game.add.sprite(singleUserData.x, singleUserData.y, singleUserData.name);
-    activeUsers[singleUserData.id] = newSprite;
+      {
+        X0uV0-99K3xfS4ydAAAA: {
+                                color:9619787.497180868,
+                                id:"X0uV0-99K3xfS4ydAAAA",
+                                name:"asdf",
+                                x:155.75522422790527,
+                                y:761.0405731201172
+                              },
+
+        p8sNRFQS6lV3ICptAAAB: {
+                                color:2403833.5947995456,
+                                id:"p8sNRFQS6lV3ICptAAAB",
+                                name:"1234",
+                                x:158.40913772583008,
+                                y:497.09022521972656
+                              }
+      }
+
+    */
   });
-
-  //  (part of update loop)  15.15.15.15.15.15.15.15.15.15.15.15.15.15.15.15.15
-  socket.on('multiplayerUpdate', function(someOtherClientsOwnData) {
-    var oneEntry = someOtherClientsOwnData;
-
-    var curSprite = getSprite(data.id, data);
-    var textSprite = activeUsers['textSprites'][data.id];
-    textSprite.x = data.x + TEXTOFFSETX + MPTEXTOFFSETX;
-    textSprite.y = data.y + TEXTOFFSETY + MPTEXTOFFSETY;
-    curSprite.x = data.x;
-    curSprite.y = data.y;
-  });
-
-  socket.emit('listOfUsersFromAClient', activeUsers); // 999999999999999999999999999999999999999999
 }
 
-// (update loop emits 'clientUpdate') 13.13.13.13.13.13.13.13.13.13.13.13.13.13
 function update() {
+  cursors = game.input.keyboard.createCursorKeys();
+
   sprite.body.setZeroVelocity();
+
   if (cursors.up.isDown || game.input.keyboard.isDown(Phaser.Keyboard.W)) {
     sprite.body.moveUp(550);
   } else if (cursors.down.isDown || game.input.keyboard.isDown(Phaser.Keyboard.S)) {
@@ -125,34 +135,27 @@ function update() {
   } else if (cursors.right.isDown || game.input.keyboard.isDown(Phaser.Keyboard.D)) {
     sprite.body.moveRight(550);
   }
+
   if (!game.camera.atLimit.x) {
     background.tilePosition.x -= ((sprite.body.velocity.x) * game.time.physicsElapsed);
   }
   if (!game.camera.atLimit.y) {
     background.tilePosition.y -= ((sprite.body.velocity.y) * game.time.physicsElapsed);
   }
-  if (ownId === null || ownId === undefined) {
+  // offset text by 50
+  text.x = Math.floor(sprite.x + 50);
+  text.y = Math.floor(sprite.y + 50);
 
-  } else {
-    socket.emit('clientUpdate', {
-      x: sprite.body.x,
-      y: sprite.body.y,
-      id: ownId,
-      tint: ownTint,
-      name: playerName
+  // socket.emit('updateServer', activeUsers[SOCKETID]);
+  socket.emit('updateServer', {
+      id: socket.id,
+      x: sprite.x,
+      y: sprite.y,
+      name: playerName,
+      color: sprite.tint
     });
-  }
-  text.x = Math.floor(sprite.x + TEXTOFFSETX);
-  text.y = Math.floor(sprite.y + TEXTOFFSETY);
 }
 
 function render() {/* game.debug.cameraInfo(game.camera, 32, 32);*/}
-
-//_____________________________________________________________________________
-// Other Functions
-
-function randomTint() {
-  return Math.random() * 0xffffff;
-}
 
 module.exports = testVar;
