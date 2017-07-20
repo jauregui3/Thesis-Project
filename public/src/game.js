@@ -206,4 +206,4 @@ function update() {
 
 function render() {/* game.debug.cameraInfo(game.camera, 32, 32);*/}
 
-this.exports = testVar;
+module.exports = testVar;
