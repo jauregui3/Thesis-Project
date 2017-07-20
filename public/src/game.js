@@ -10,8 +10,8 @@ var background;
 var text;
 var SOCKETID;
 var cameraIsLocked = false;
-var TEXTOFFSETX = 50;
-var TEXTOFFSETY = 50;
+var TEXTOFFSETX = 0;
+var TEXTOFFSETY = 60;
 var MPTEXTOFFSETX = 23;
 var MPTEXTOFFSETY = 23;
 
@@ -92,8 +92,8 @@ function create() {
         console.log('making sprite for user', activePlayersFromServer[userProp].name);
         var userSprite;
         userSprite = game.add.sprite(activePlayersFromServer[userProp].x , activePlayersFromServer[userProp].y, 'red-circle');
-        // userSprite.scale.x = .75;
-        // userSprite.scale.y = .75;
+         userSprite.scale.x = .75;
+         userSprite.scale.y = .75;
         userSprite.tint = activePlayersFromServer[userProp].color;
 
         //create activeClientText here...
