@@ -11,7 +11,7 @@ var text;
 var SOCKETID;
 var cameraIsLocked = false;
 var TEXTOFFSETX = 0;
-var TEXTOFFSETY = 50;
+var TEXTOFFSETY = 60;
 var MPTEXTOFFSETX = 23;
 var MPTEXTOFFSETY = 23;
 
@@ -59,8 +59,8 @@ function create() {
   // sprite.scale.x = .75;
   // sprite.scale.y = .75;
   // sprite.tint = Math.random() * 0xffffff;
-  // text = game.add.text(230, 420, playerName, {font:"12px Arial",fill:"#ff0044",wordWrap:false});
-  // text.anchor.set(0.5);
+   // text = game.add.text(230, 420, playerName, {font:"12px Arial",fill:"#ff0044",wordWrap:false});
+   // text.anchor.set(0.5);
   // game.physics.p2.enable(sprite);
   //
   // game.camera.follow(sprite, Phaser.Camera.FOLLOW_LOCKON);
@@ -92,17 +92,24 @@ function create() {
         console.log('making sprite for user', activePlayersFromServer[userProp].name);
         var userSprite;
         userSprite = game.add.sprite(activePlayersFromServer[userProp].x , activePlayersFromServer[userProp].y, 'red-circle');
+
         userSprite.scale.x = .75;
         userSprite.scale.y = .75;
+
         userSprite.tint = activePlayersFromServer[userProp].color;
-        // text = game.add.text(activePlayersFromServer[userProp].x, activePlayersFromServer[userProp].y,
-        //   activePlayersFromServer[userProp].name, {font:"12px Arial",fill:"#ff0044",wordWrap:false});
-        // text.anchor.set(0.5);
+
+        //create activeClientText here...
+        let activeClientTextSprite = game.add.text(activePlayersFromServer[userProp].x, activePlayersFromServer[userProp].y,
+
+        activePlayersFromServer[userProp].name, {font:"12px Arial",fill:"#ff0044",wordWrap:false});
+
+        //anchor client text sprite
+        activeClientTextSprite.anchor.set(0.5);
         game.physics.p2.enable(userSprite);
 
         // add the sprite object to players
+        activeClientTextSprites[userProp] = activeClientTextSprite;
         activeClientUserSprites[userProp] = userSprite;
-
       } else if (userProp !== SOCKETID) {
         // console.log(activePlayersFromServer[userProp].name, activeClientUserSprites[userProp].x, activePlayersFromServer[userProp].x);
 
@@ -115,6 +122,12 @@ function create() {
         // if (before !== after) {
         //   console.log('diff in x values', activePlayersFromServer[userProp].name)
         // }
+
+
+        // updating x and y of text from position and adding offset....may need to revisit
+        activeClientTextSprites[userProp].x = Math.floor(activePlayersFromServer[userProp].x + TEXTOFFSETX);
+        activeClientTextSprites[userProp].y = Math.floor(activePlayersFromServer[userProp].y + TEXTOFFSETY);
+
       }
       if (cameraIsLocked === false && userProp === SOCKETID) {
         //console.log('locking camera on to user sprite')
@@ -171,9 +184,11 @@ function update() {
     if (!game.camera.atLimit.y) {
       background.tilePosition.y -= ((sprite.body.velocity.y) * game.time.physicsElapsed);
     }
-    // offset text by 50
-    // text.x = Math.floor(sprite.x + 50);
-    // text.y = Math.floor(sprite.y + 50);
+
+
+    // offset text by 50 update players text similarly to above
+    activeClientTextSprites[SOCKETID].x = Math.floor(sprite.x + TEXTOFFSETX);
+    activeClientTextSprites[SOCKETID].y = Math.floor(sprite.y + TEXTOFFSETY);
 
     // socket.emit('updateServer', activeClientUserSprites[SOCKETID]);
     socket.emit('updateServer', {
@@ -191,4 +206,4 @@ function update() {
 
 function render() {/* game.debug.cameraInfo(game.camera, 32, 32);*/}
 
-module.exports = testVar;
+this.exports = testVar;
