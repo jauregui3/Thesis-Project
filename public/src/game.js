@@ -30,7 +30,7 @@ function preload() {
 
 function create() {
   // game.stage.disableVisibilityChange = true;
-  game.world.setBounds(0, 0, 1920, 1920);
+  game.world.setBounds(0, 0, 2000, 2000);
   game.physics.startSystem(Phaser.Physics.P2JS);
   // below we set the 'bounciness of the wall boundaries'
   game.physics.p2.restitution = 1;
@@ -92,8 +92,10 @@ function create() {
         console.log('making sprite for user', activePlayersFromServer[userProp].name);
         var userSprite;
         userSprite = game.add.sprite(activePlayersFromServer[userProp].x , activePlayersFromServer[userProp].y, 'red-circle');
-         userSprite.scale.x = .75;
-         userSprite.scale.y = .75;
+
+        userSprite.scale.x = .75;
+        userSprite.scale.y = .75;
+
         userSprite.tint = activePlayersFromServer[userProp].color;
 
         //create activeClientText here...
