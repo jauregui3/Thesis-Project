@@ -32,6 +32,8 @@ function create() {
   // game.stage.disableVisibilityChange = true;
   game.world.setBounds(0, 0, 1920, 1920);
   game.physics.startSystem(Phaser.Physics.P2JS);
+  // below we set the 'bounciness of the wall boundaries'
+  game.physics.p2.restitution = 1;
   background = game.add.tileSprite(0, 0, game.world.width, game.world.height, 'background');
   background.fixedToCamera = true;
 
