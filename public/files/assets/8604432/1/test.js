@@ -3,7 +3,7 @@ var Network = pc.createScript('network');
 // initialize code called once per entity
 Network.prototype.initialize = function() {
     //this.socket = io('http://localhost:3000');
-    this.socket = io('http://172.222.171.3:8081');
+    this.socket = io('http://pond-game.herokuapp.com');
     this.socket.emit('initialize');
     var self = this;
     
