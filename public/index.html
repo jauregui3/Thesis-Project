@@ -1,29 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <title>DJ.js MVP</title>
-  <script src="lib/phaser.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
-  <script src="src/socket.js"></script>
-  <script src="src/game.js"></script>
+    <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no' />
+    <meta charset='utf-8'>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <style></style>
+    <title>Ballhalla</title>
+    <script src="playcanvas-stable.min.js"></script>
+    <script>
+        ASSET_PREFIX = "";
+        SCRIPT_PREFIX = "";
+        SCENE_PATH = "539606.json";
+        CONTEXT_OPTIONS = {
+            'antialias': true,
+            'alpha': false,
+            'preserveDrawingBuffer': false,
+            'preferWebGl2': true
+        };
+        SCRIPTS = [ 8596628, 8596629, 8596630, 8596631, 8604432, 8604434, 8604509, 8606732 ];
+        CONFIG_FILENAME = "config.json";
+        pc.script.legacy = false;
+    </script>
 </head>
 <body>
-  <input id="nameInput" type="text"></input>
-  <button id="starter" onclick="gameStart()">StartGame</button>
-<div id="phaser-example">
-
-</div>
-
-<script>
-  var game;
-  var playerName;
-  var gameStart = function() {
-    playerName = document.getElementById("nameInput").value;
-    document.getElementById("starter").style.visibility = "hidden";
-    document.getElementById("nameInput").style.visibility = "hidden";
-    game = new Phaser.Game(window.innerWidth-20, window.innerHeight-20, Phaser.CANVAS,
-     'phaser-example', { preload: preload, create: create, update: update, render: render });}
-</script>
+    <script src="__start__.js"></script>
+    <script src="__loading__.js"></script>
 </body>
 </html>
