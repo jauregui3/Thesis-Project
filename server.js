@@ -16,6 +16,7 @@ function Player (id) {
   this.y = 0;
   this.z = 0;
   this.entity = null;
+  this.lastCollision = null;
 }
 
 io.sockets.on('connection', function(socket) {
@@ -26,6 +27,7 @@ io.sockets.on('connection', function(socket) {
     players.push(newPlayer);
 
     socket.emit('playerData', {id: idNum, players: players});
+
 
     socket.broadcast.emit('playerJoined', newPlayer);
   });
