@@ -14,6 +14,7 @@ Teleportable.prototype.update = function(dt) {
     // teleport to the last location
     var pos = this.entity.getPosition();
     if (pos.y < -4) {
+        this.entity.sound.play("wilhelm");   
         this.teleport(this.lastTeleportFrom, this.lastTeleportTo);
     }
 };

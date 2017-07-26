@@ -3,7 +3,8 @@ var Network = pc.createScript('network');
 // initialize code called once per entity
 Network.prototype.initialize = function() {
     //this.socket = io('http://localhost:3000');
-    this.socket = io('http://172.222.171.3:8081');
+    //this.socket = io('http://pond-game.herokuapp.com');
+    this.socket = io('http://172.222.171.3:8081/');
     this.socket.emit('initialize');
     var self = this;
     
@@ -61,6 +62,8 @@ Network.prototype.createPlayerEntity = function(data) {
 Network.prototype.movePlayer = function (data) {
     if (this.initialized) {
         this.players[data.id].entity.rigidbody.teleport(data.x, data.y, data.z);
+        this.players[data.id].entity.rigidbody.linearVelocity = new pc.Vec3(data.vx, data.vy, data.vz);
+        this.players[data.id].entity.rigidbody.angularVelocity = new pc.Vec3(data.ax, data.ay, data.az);
     }
 };
 
@@ -72,7 +75,20 @@ Network.prototype.update = function(dt) {
 Network.prototype.updatePosition = function () {
     if (this.initialized) {
         var pos = this.player.getPosition();
-        this.socket.emit ('positionUpdate', {id: this.id, x: pos.x, y: pos.y, z: pos.z});
+        var lv = this.player.rigidbody.linearVelocity;
+        var av = this.player.rigidbody.angularVelocity;
+        this.socket.emit ('positionUpdate', {
+          id: this.id,
+          x: pos.x,
+          y: pos.y,
+          z: pos.z,
+          vx: lv.x,
+          vy: lv.y,
+          vz: lv.z,
+          ax: av.x,
+          ay: av.y,
+          az: av.z
+        });
     }
 };
 
