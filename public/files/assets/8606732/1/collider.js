@@ -7,6 +7,7 @@ Collider.prototype.initialize = function () {
 };
 
 Collider.prototype.onCollisionStart = function (result) {
+<<<<<<< HEAD
 
     if (result.other.name === 'Other') {
         console.log('playing collision sound!');
@@ -14,6 +15,13 @@ Collider.prototype.onCollisionStart = function (result) {
 
 
 
+=======
+    if (result.other.rigidbody) {
+        // console.log('playing collision sound!');
+        // console.log('RESULT >>>>>>>>>', result.other);
+        this.entity.sound.play("collide");
+    }
+>>>>>>> Add collision tracking
 };
 
 Collider.prototype.onBump = function (result) {
