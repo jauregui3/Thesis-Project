@@ -39,6 +39,7 @@ function Player (id) {
   this.y = 0;
   this.z = 0;
   this.entity = null;
+  this.lastCollision = null;
 }
 
 io.sockets.on('connection', function(socket) {
