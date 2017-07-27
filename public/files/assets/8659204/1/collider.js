@@ -7,7 +7,7 @@ Collider.prototype.initialize = function () {
 };
 
 Collider.prototype.onCollisionStart = function (result) {
-    if (result.other.rigidbody) {
+    if (result.other.name === "Other") {
         // console.log('playing collision sound!');
         // console.log('RESULT >>>>>>>>>', result.other);
         this.entity.sound.play("collide");
