@@ -20,6 +20,7 @@ Teleportable.prototype.update = function(dt) {
         //donezo
         var targetDiv = document.querySelector('body > div.container');
         targetDiv.style.display = 'block';
+        this.entity.sound.play("wilhelm");
         this.app.fire('gameover');
     } else if (pos.y < -4) {
         this.entity.sound.play("wilhelm");

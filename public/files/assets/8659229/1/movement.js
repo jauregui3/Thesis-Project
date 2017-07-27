@@ -35,6 +35,16 @@ Movement.prototype.update = function(dt) {
     if (this.app.keyboard.isPressed(pc.KEY_S)) {
         forceZ += this.speed;
     }
+    
+    if (this.app.keyboard.isPressed(pc.KEY_SPACE)) {
+        var curVelocity = this.entity.rigidbody.linearVelocity;
+        var normalizer = Math.sqrt(Math.pow(curVelocity.data[0], 2) + Math.pow(curVelocity.data[2], 2));
+        var nx = curVelocity.data[0] / normalizer;
+        var ny = curVelocity.data[2] / normalizer;
+        console.log('velocity: ', curVelocity.data[0], curVelocity.data[2]);
+        console.log('normalizer: ', nx, ny);
+        this.entity.rigidbody.applyImpulse(0.3 * nx, 0, 0.3 * ny);
+    }
 
     this.force.x = forceX;
     this.force.z = forceZ;
