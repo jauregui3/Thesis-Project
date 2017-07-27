@@ -1,5 +1,5 @@
 // droplet IP address: 138.68.251.126
-require('dotenv').config()
+require('dotenv').config();
 var express = require('express');
 var app = express();
 //var server = require('http').createServer();
