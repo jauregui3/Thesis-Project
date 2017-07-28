@@ -11,6 +11,7 @@ Collider.prototype.onCollisionStart = function (result) {
         console.log('playing collision sound!');
         this.entity.sound.play("collide");
 
+
     }
 };
 
