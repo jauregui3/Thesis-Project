@@ -13,6 +13,7 @@ Network.prototype.initialize = function() {
     this.other = this.app.root.findByName ('Other');
 
 
+
     this.socket.on('playerData', function(data) {
         self.initializePlayers(data);
     });
@@ -30,6 +31,7 @@ Network.prototype.initializePlayers = function(data) {
     this.players = data.players;
     this.id = data.id;
     this.player.id = data.id;
+
 
 
 
@@ -53,6 +55,8 @@ Network.prototype.createPlayerEntity = function(data) {
     newPlayer.enabled = true;
     newPlayer.id = data.id;
     newPlayer.lastCollision = null;
+
+
 
 
 
@@ -83,6 +87,7 @@ Network.prototype.update = function(dt) {
 Network.prototype.updatePosition = function () {
     if (this.initialized) {
         var pos = this.player.getPosition();
+
         var lv = this.player.rigidbody.linearVelocity;
         var av = this.player.rigidbody.angularVelocity;
         this.socket.emit ('positionUpdate', {
