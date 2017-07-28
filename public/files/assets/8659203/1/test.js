@@ -6,11 +6,13 @@ Network.prototype.initialize = function() {
     this.socket = io('http://pond-game.herokuapp.com');
     // this.socket = io('http://172.222.171.3:8081/');
 
+
     this.socket.emit('initialize');
     var self = this;
 
     this.player = this.app.root.findByName ('Player');
     this.other = this.app.root.findByName ('Other');
+
 
 
 
@@ -87,7 +89,6 @@ Network.prototype.update = function(dt) {
 Network.prototype.updatePosition = function () {
     if (this.initialized) {
         var pos = this.player.getPosition();
-
         var lv = this.player.rigidbody.linearVelocity;
         var av = this.player.rigidbody.angularVelocity;
         this.socket.emit ('positionUpdate', {
@@ -102,6 +103,7 @@ Network.prototype.updatePosition = function () {
           ay: av.y,
           az: av.z
         });
+
 
     }
 };

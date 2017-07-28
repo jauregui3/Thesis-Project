@@ -13,7 +13,7 @@ Collider.prototype.onCollisionStart = function (result) {
         this.entity.sound.play("collide");
 
 
-    }
+
 };
 
 Collider.prototype.onBump = function (result) {
