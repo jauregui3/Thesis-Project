@@ -15,6 +15,7 @@ Network.prototype.initialize = function() {
     this.other = this.app.root.findByName ('Other');
 
 
+
     this.socket.on('playerData', function(data) {
         self.initializePlayers(data);
     });
@@ -32,6 +33,9 @@ Network.prototype.initializePlayers = function(data) {
     this.players = data.players;
     this.id = data.id;
     this.player.id = data.id;
+
+
+
 
 
     for (var i = 0; i < this.players.length; i++) {
@@ -54,6 +58,10 @@ Network.prototype.createPlayerEntity = function(data) {
     newPlayer.enabled = true;
     newPlayer.id = data.id;
     newPlayer.lastCollision = null;
+
+
+
+
 
 
     this.other.getParent().addChild(newPlayer);
