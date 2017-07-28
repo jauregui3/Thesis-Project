@@ -20,6 +20,7 @@ Collider.prototype.onCollisionStart = function (result) {
         // console.log('playing collision sound!');
         // console.log('RESULT >>>>>>>>>', result.other);
         this.entity.sound.play("collide");
+
     }
 >>>>>>> Add collision tracking
 };

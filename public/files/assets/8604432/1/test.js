@@ -2,13 +2,18 @@ var Network = pc.createScript('network');
 
 // initialize code called once per entity
 Network.prototype.initialize = function() {
-    //this.socket = io('http://localhost:3000');
-    this.socket = io('localhost:8081');
+
+    //this.socket = io('http://localhost:8081');
+    this.socket = io('http://pond-game.herokuapp.com');
+    // this.socket = io('http://172.222.171.3:8081/');
+
+
     this.socket.emit('initialize');
     var self = this;
 
     this.player = this.app.root.findByName ('Player');
     this.other = this.app.root.findByName ('Other');
+
 
     this.socket.on('playerData', function(data) {
         self.initializePlayers(data);
@@ -27,6 +32,7 @@ Network.prototype.initializePlayers = function(data) {
     this.players = data.players;
     this.id = data.id;
     this.player.id = data.id;
+
 
     for (var i = 0; i < this.players.length; i++) {
         if (i !== this.id) {
@@ -48,6 +54,7 @@ Network.prototype.createPlayerEntity = function(data) {
     newPlayer.enabled = true;
     newPlayer.id = data.id;
     newPlayer.lastCollision = null;
+
 
     this.other.getParent().addChild(newPlayer);
     if (data.x & data.y & data.z) {
@@ -74,8 +81,23 @@ Network.prototype.update = function(dt) {
 Network.prototype.updatePosition = function () {
     if (this.initialized) {
         var pos = this.player.getPosition();
-        // console.log(this.player);
-        this.socket.emit ('positionUpdate', {id: this.id, x: pos.x, y: pos.y, z: pos.z});
+
+        var lv = this.player.rigidbody.linearVelocity;
+        var av = this.player.rigidbody.angularVelocity;
+        this.socket.emit ('positionUpdate', {
+          id: this.id,
+          x: pos.x,
+          y: pos.y,
+          z: pos.z,
+          vx: lv.x,
+          vy: lv.y,
+          vz: lv.z,
+          ax: av.x,
+          ay: av.y,
+          az: av.z
+        });
+
+
     }
 };
 
