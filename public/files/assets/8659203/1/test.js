@@ -5,12 +5,15 @@ Network.prototype.initialize = function() {
     //this.socket = io('http://localhost:8081');
     this.socket = io('http://pond-game.herokuapp.com');
     // this.socket = io('http://172.222.171.3:8081/');
+
+
     this.socket.emit('initialize');
     var self = this;
 
     this.player = this.app.root.findByName ('Player');
     this.other = this.app.root.findByName ('Other');
     console.log('this.other', this.other);
+
 
 
     this.socket.on('playerData', function(data) {
@@ -30,6 +33,7 @@ Network.prototype.initializePlayers = function(data) {
     this.players = data.players;
     this.id = data.id;
     this.player.id = data.id;
+
 
 
 
@@ -53,6 +57,7 @@ Network.prototype.createPlayerEntity = function(data) {
     newPlayer.enabled = true;
     newPlayer.id = data.id;
     newPlayer.lastCollision = null;
+
 
 
     this.other.getParent().addChild(newPlayer);
@@ -96,6 +101,8 @@ Network.prototype.updatePosition = function () {
           ay: av.y,
           az: av.z
         });
+
+
     }
 };
 
