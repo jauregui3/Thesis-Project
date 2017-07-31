@@ -1,6 +1,7 @@
 var Teleportable = pc.createScript('teleportable');
 
 Teleportable.prototype.initialize = function() {
+  this.socket = io('http://localhost:8081');
   this.lastTeleportFrom = null;
   this.lastTeleportTo = null;
   this.lastTeleport = Date.now();
@@ -19,6 +20,15 @@ Teleportable.prototype.update = function(dt) {
 
     this.entity.sound.play('wilhelm');
     this.app.fire('gameover');
+    //this is where we delete the dead player
+      //send event to server from array
+
+    socket.emit('deletePlayer', this.entity.id); //socket player listener on server
+    //
+    console.log('about to destroy this.entity>>>>', this.entity)
+    this.entity.destroy();
+  } else if (pos.y < -4 ) {
+    this.entity.destroy();
   }
 };
 
