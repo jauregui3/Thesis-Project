@@ -44,7 +44,7 @@ function Player (id) {
 }
 
 io.sockets.on('connection', function(socket) {
-  //console.log('new connection', players.length);
+  console.log('new connection', players.length);
   socket.on('initialize', function(nickName) {
     var idNum = players.length;
     var newPlayer = new Player (idNum);
@@ -52,8 +52,7 @@ io.sockets.on('connection', function(socket) {
 
     players.push(newPlayer);
     socket.emit('playerData', {id: idNum, players: players});
-
-
+    console.log('emitting player joined ', idNum);
     socket.broadcast.emit('playerJoined', newPlayer);
   });
 
