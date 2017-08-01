@@ -5,13 +5,13 @@ Network.prototype.initialize = function() {
   self = this;
   this.player = this.entity; // this.app.root.findByName('Player');
   this.other = this.app.root.findByName('Other');
-    
+
   if (window.socket === undefined) {
-    window.socket = io('http://localhost:8081');    
-  } 
-    
+    window.socket = io('http://localhost:8081');
+  }
+
   this.socket = window.socket;
-    
+
   this.socket.on('playerData', function(data) {
     self.initializePlayers(data);
   });
@@ -31,12 +31,12 @@ Network.prototype.smrtInitialize = function() {
 };
 
 Network.prototype.initializePlayers = function(data) {
-    console.log('initializePlayers call ', data.id);
+  console.log('initializePlayers call ', data.id);
   this.players = data.players.filter(function(cur){
     //console.log('cur: ', cur, cur.id);
     return cur !== 'dead';
   });
-    
+
   this.id = data.id;
   this.player.id = data.id;
   console.log('players length: ', this.players.length, ' current playerId', this.player.id);
@@ -55,39 +55,37 @@ Network.prototype.addPlayer = function(data) {
   // this.players[this.players.length - 1].entity = this.createPlayerEntity(data);
   data.entity = this.createPlayerEntity(data);
   this.players.push(data);
-  
+
 };
 
 Network.prototype.createPlayerEntity = function(data) {
 
-    var doesIdExist = this.players.reduce(function(accum, cur) {
-        if (cur.id === data.id) {
-            accum = true;
-        }
-        return accum;
-    }, false);
-    
-    console.log('want to create ball, id=', data.id, data !== undefined, data !== 'dead', doesIdExist === false, data.entity === null);
-    if (data !== undefined && data !== 'dead' && (doesIdExist === false || data.entity === null)) {
-      var newPlayer = this.other.clone();
-
-      newPlayer.enabled = true;
-      newPlayer.id = data.id;
-      newPlayer.nickName = data.nickName;
-      newPlayer.lastCollision = null;
-      if (true){
-        this.other.getParent().addChild(newPlayer);
-      }
-      if (data) {
-        console.log('>>>teleporting created ball');  
-        // console.log('data', data);
-        // console.log('newPlayer', newPlayer);
-        // console.log('newPLayer.rigidBody', newPlayer.rigidBody);
-        // console.log(this.player);
-        newPlayer.rigidbody.teleport(data.x, data.y, data.z);
-      }
-      return newPlayer;       
+  var doesIdExist = this.players.reduce(function(accum, cur) {
+    if (cur.id === data.id) {
+      accum = true;
     }
+    return accum;
+  }, false);
+
+  console.log('want to create ball, id=', data.id, data !== undefined, data !== 'dead', doesIdExist === false, data.entity === null);
+  if (data !== undefined && data !== 'dead' && (doesIdExist === false || data.entity === null)) {
+    var newPlayer = this.other.clone();
+
+    newPlayer.enabled = true;
+    newPlayer.id = data.id;
+    newPlayer.nickName = data.nickName;
+    newPlayer.lastCollision = null;
+    this.other.getParent().addChild(newPlayer);
+    if (data) {
+      console.log('>>>teleporting created ball');
+      // console.log('data', data);
+      // console.log('newPlayer', newPlayer);
+      // console.log('newPLayer.rigidBody', newPlayer.rigidBody);
+      // console.log(this.player);
+      newPlayer.rigidbody.teleport(data.x, data.y, data.z);
+    }
+    return newPlayer;
+  }
 
 };
 
