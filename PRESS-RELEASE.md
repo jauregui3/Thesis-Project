@@ -25,7 +25,7 @@
 
 ## How to Get Started ##
 
- Ballhalla! is very easy to get started just visit [the live game](pond-game.herokuapp.com) enter in a user nickname, and you will be put into the middle of the action, controls are classic and simple utilizing the WASD keys and spacebar.
+ Ballhalla! is very easy to get started just visit [the live game](http://pond-game.herokuapp.com) enter in a user nickname, and you will be put into the middle of the action, controls are classic and simple utilizing the WASD keys and spacebar.
 
 ## Customer Quote ##
 
