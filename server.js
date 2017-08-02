@@ -60,7 +60,7 @@ io.sockets.on('connection', function(socket) {
   socket.on('deletePlayer', function(id) {
     console.log('IM IN DELETE PLAYER');
     //remove the player from players
-    //socket.broadcast.emit('deleteOther', {id:id, players:players})
+    //socket.broadcast.emit('deleteOther', {id:id, players: players});
     players[id] = 'dead'; // -1 may be wrong but testing....
   });
 
