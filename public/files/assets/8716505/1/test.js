@@ -4,14 +4,28 @@ Network.prototype.initialize = function() {
   console.log('in initialize', this.entity);
   self = this;
   this.player = this.entity; // this.app.root.findByName('Player');
-  this.other = this.app.root.findByName('Other');
 
+  // added this line to have access to player in scoreboard.js
+  window.player = this.player;
+
+  this.other = this.app.root.findByName('Other');
+  // console.log('what is this? pc === this?', pc === this);
+  // window.stupidInitializeThis = this;
+};
+
+Network.prototype.smrtInitialize = function() {
+  console.log('this in smrtInitialize: ', this);
   if (window.socket === undefined) {
-    //window.socket = io('http://localhost:8081');
-    window.socket = io('http://pond-game.herokuapp.com');
+    window.socket = io('http://localhost:8081');
   }
 
   this.socket = window.socket;
+  this.socket.emit('initialize', self.player.nickName);
+  // var self = this;
+  // self.player = player;
+  // self.other = other;
+  // this.player = this.app.root.findByName('Player');
+  // this.other = this.app.root.findByName('Other');
 
   this.socket.on('playerData', function(data) {
     self.initializePlayers(data);
@@ -24,12 +38,17 @@ Network.prototype.initialize = function() {
   this.socket.on ('playerMoved', function (data) {
     self.movePlayer (data);
   });
+  // this.socket.on('deleteOther', function (data) { //data = id from deleteOther
+  //   //deleting player of that id(aka data)
+  //   //destroy logic
+  //   console.log('deleting ', data.id);
+  //   this.players[data.id].destroy();//
+  //   //this.initializePlayers(data.players);
+  //   //possibly
+  // });
 };
 
-Network.prototype.smrtInitialize = function() {
-  this.socket = window.socket;
-  this.socket.emit('initialize', self.player.nickName);
-};
+//
 
 Network.prototype.initializePlayers = function(data) {
   console.log('initializePlayers call ', data.id);
@@ -60,7 +79,6 @@ Network.prototype.addPlayer = function(data) {
 };
 
 Network.prototype.createPlayerEntity = function(data) {
-
   var doesIdExist = this.players.reduce(function(accum, cur) {
     if (cur.id === data.id) {
       accum = true;
@@ -76,7 +94,9 @@ Network.prototype.createPlayerEntity = function(data) {
     newPlayer.id = data.id;
     newPlayer.nickName = data.nickName;
     newPlayer.lastCollision = null;
+
     this.other.getParent().addChild(newPlayer);
+
     if (data) {
       console.log('>>>teleporting created ball');
       // console.log('data', data);
@@ -87,7 +107,6 @@ Network.prototype.createPlayerEntity = function(data) {
     }
     return newPlayer;
   }
-
 };
 
 Network.prototype.movePlayer = function (data) {

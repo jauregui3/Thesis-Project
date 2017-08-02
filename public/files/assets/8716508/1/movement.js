@@ -35,14 +35,15 @@ Movement.prototype.update = function(dt) {
       forceZ += this.speed;
     }
 
-      // boost on space bar
     var curVelocity = this.entity.rigidbody.linearVelocity;
-    if (this.app.keyboard.isPressed(pc.KEY_SPACE)) {
-      if (curVelocity.data[0] !== 0) {
+      
+    // boost on space bar
+    if (curVelocity.data[0] !== 0) {
+      if (this.app.keyboard.isPressed(pc.KEY_SPACE)) {
         var normalizer = Math.sqrt(Math.pow(curVelocity.data[0], 2) + Math.pow(curVelocity.data[2], 2));
         var nx = curVelocity.data[0] / normalizer;
         var ny = curVelocity.data[2] / normalizer;
-        this.entity.rigidbody.applyImpulse(0.3 * nx, 0, 0.3 * ny);         
+        this.entity.rigidbody.applyImpulse(0.3 * nx, 0, 0.3 * ny);
       }
     }
   }
