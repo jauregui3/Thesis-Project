@@ -24,12 +24,16 @@ StartScreen.prototype.initialize = function() {
 
     var playerRandVar = this.app.root.findByName('Player');
     var otherRandVar = this.app.root.findByName('Other');
-    console.log(playerRandVar,otherRandVar)
 
     var nickName = document.querySelector('#nicknameInput').value;
-
-    Network.prototype.smrtInitialize(nickName, playerRandVar, otherRandVar);
+    playerRandVar.nickName = nickName;
+    
+    Network.prototype.smrtInitialize();
     console.log('starting game');
+      
+    // reset playerScore to 0 for next player
+    var prev = window.playerscore.innerHTML = '0';
+    
     this.app.fire('gamestart');
   });
 };
