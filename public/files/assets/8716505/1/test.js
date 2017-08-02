@@ -16,8 +16,8 @@ Network.prototype.initialize = function() {
 Network.prototype.smrtInitialize = function() {
   console.log('this in smrtInitialize: ', this);
   if (window.socket === undefined) {
-    //window.socket = io('http://localhost:8081');
-    window.socket = io('http://pond-game.herokuapp.com');
+    window.socket = io('http://localhost:8081');
+    //window.socket = io('http://pond-game.herokuapp.com');
   }
 
   this.socket = window.socket;
@@ -53,17 +53,18 @@ Network.prototype.smrtInitialize = function() {
 
 Network.prototype.initializePlayers = function(data) {
   console.log('initializePlayers call ', data.id);
-  this.players = data.players.filter(function(cur){
-    //console.log('cur: ', cur, cur.id);
-    return cur !== 'dead';
-  });
-
+  // this.players = data.players.filter(function(cur){
+  //   //console.log('cur: ', cur, cur.id);
+  //   return cur !== 'dead';
+  // });
+  this.players = data.players;
+  window.players = this.players;
   this.id = data.id;
   this.player.id = data.id;
   console.log('players length: ', this.players.length, ' current playerId', this.player.id);
 
   for (var i = 0; i < this.players.length; i++) {
-    if (i !== this.id) {
+    if (i !== this.id && this.players[i] !== 'dead') {
       this.players[i].entity = this.createPlayerEntity (this.players[i]);
     }
   }
@@ -111,7 +112,9 @@ Network.prototype.createPlayerEntity = function(data) {
 };
 
 Network.prototype.movePlayer = function (data) {
+  console.log('movePlayer: ', data.id, this.initialized, this === self, this.players);//this.players[data.id], this.players[data.id].entity);
   if (this.initialized && this.players[data.id] && this.players[data.id].entity) {
+    //console.log('movePlayer, actually moving: ', data.id);
     this.players[data.id].entity.rigidbody.teleport(data.x, data.y, data.z);
     this.players[data.id].entity.rigidbody.linearVelocity = new pc.Vec3(data.vx, data.vy, data.vz);
     this.players[data.id].entity.rigidbody.angularVelocity = new pc.Vec3(data.ax, data.ay, data.az);
@@ -127,6 +130,9 @@ Network.prototype.updatePosition = function () {
     var pos = this.player.getPosition();
     var lv = this.player.rigidbody.linearVelocity;
     var av = this.player.rigidbody.angularVelocity;
+    if (self.id !== this.id) {
+      console.log('id disparity in updatePosition');
+    }
     this.socket.emit ('positionUpdate', {
       id: this.id,
       x: pos.x,

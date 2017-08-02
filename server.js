@@ -6,9 +6,9 @@ var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var port = process.env.PORT || 8081;
+var redis;
 app.use(express.static(__dirname + '/public'));
 
-var redis;
 if (process.env.REDISTOGO_URL) {
   console.log('theres a redis url, here we go');
   var rtg   = require('url').parse(process.env.REDISTOGO_URL);
@@ -26,9 +26,6 @@ var scoreboard1 = redis.zrangebyscore('scoreboard', 0, 999999, 'WITHSCORES', sco
 
 redis.zincrby('scoreboard', 1, 'dave');
 var scoreboard2 = redis.zrangebyscore('scoreboard', 0, 999999, 'WITHSCORES', scoreboardCallback);
-
-
-
 
 var players = [];
 
