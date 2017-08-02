@@ -16,8 +16,8 @@ Network.prototype.initialize = function() {
 Network.prototype.smrtInitialize = function() {
   console.log('this in smrtInitialize: ', this);
   if (window.socket === undefined) {
-    window.socket = io('http://localhost:8081');
-    //window.socket = io('http://pond-game.herokuapp.com');
+    //window.socket = io('http://localhost:8081');
+    window.socket = io('http://pond-game.herokuapp.com');
   }
 
   this.socket = window.socket;
