@@ -27,13 +27,10 @@ StartScreen.prototype.initialize = function() {
 
     var nickName = document.querySelector('#nicknameInput').value;
     playerRandVar.nickName = nickName;
+      
     
     Network.prototype.smrtInitialize();
     console.log('starting game');
-      
-    // reset playerScore to 0 for next player
-    var prev = window.playerscore.innerHTML = '0';
-    
     this.app.fire('gamestart');
   });
 };
