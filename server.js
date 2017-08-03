@@ -1,4 +1,3 @@
-// droplet IP address: 138.68.251.126
 require('dotenv').config();
 var express = require('express');
 var app = express();
@@ -6,29 +5,22 @@ var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var port = process.env.PORT || 8081;
-var redis;
 app.use(express.static(__dirname + '/public'));
 
+var redis;
 if (process.env.REDISTOGO_URL) {
   console.log('theres a redis url, here we go');
   var rtg   = require('url').parse(process.env.REDISTOGO_URL);
   redis = require('redis').createClient(rtg.port, rtg.hostname);
   redis.auth(rtg.auth.split(':')[1]);
-
 } else {
   redis = require('redis').createClient();
 }
 var scoreboardCallback = function(err, response) {
   if (err) {console.error(err);}
 };
-redis.zincrby('scoreobard', 2, 'dave');
-var scoreboard1 = redis.zrangebyscore('scoreboard', 0, 999999, 'WITHSCORES', scoreboardCallback);
-
-redis.zincrby('scoreboard', 1, 'dave');
-var scoreboard2 = redis.zrangebyscore('scoreboard', 0, 999999, 'WITHSCORES', scoreboardCallback);
 
 var players = [];
-
 
 function Player (id) {
   this.id = id;
@@ -40,45 +32,49 @@ function Player (id) {
 }
 
 io.sockets.on('connection', function(socket) {
-  console.log(' ');
-  console.log('new connection', socket.id);
 
-  socket.on('initialize', function(nickName) {
-    console.log(' ');
-    console.log('-------------------------');
-    console.log('socket on initialize... ');
-    console.log('list of sockets: ', Object.keys(io.sockets.sockets));
-
+  socket.on('initialize', function(nickName) { //-----------------------------
     var idNum = players.length;
     var newPlayer = new Player (idNum);
     newPlayer.nickName = nickName;
-
     players.push(newPlayer);
-
-    console.log('emitting playerData... ');
+    redis.zadd('scoreboard', 0, '' + idNum + ' ' + nickName);
     socket.emit('playerData', {id: idNum, players: players});
-
-    console.log('broadcasting playerJoined... ');
-    console.log('-------------------------');
     socket.broadcast.emit('playerJoined', newPlayer);
+
+    // initial array
+    // send out current leaderboard data
+    var initialCallback = function(err, res) {
+      if (err) {
+        console.log(err);
+      } else {
+        socket.emit('leaderboardUpdate', res);
+        socket.broadcast.emit('leaderboardUpdate', res);
+      }
+    }
+    redis.zrevrangebyscore('scoreboard', '+inf', '-inf', 'WITHSCORES', initialCallback);
   });
 
-  socket.on('deletePlayer', function(id) {
-    console.log(' ');
-    console.log('players before deletion... ', players);
-
-    console.log(' ');
-    console.log('socket on deletePlayer... ');
-    console.log(' ');
-
+  socket.on('deletePlayer', function(id, lastCollision) { //---------------------------------
+    redis.zrem('scoreboard', '' + id + ' ' + players[id].nickName);
+    var playerGettingPoint = '' + lastCollision + ' ' + players[lastCollision].nickName;
+    if (players[lastCollision] !== 'dead') {
+      redis.zincrby('scoreboard', 1, playerGettingPoint);
+    }
     players[id] = 'dead';
-    console.log('players after deletion... ', players);
-    // socket.disconnect();
+
+    // send out current leaderboard data
+    var leaderboardCallback = function(err, res) {
+      if (err) {
+        console.log(err);
+      } else {
+        socket.broadcast.emit('leaderboardUpdate', res);
+      }
+    }
+    redis.zrevrangebyscore('scoreboard', '+inf', '-inf', 'WITHSCORES', leaderboardCallback);
   });
 
-  socket.on('positionUpdate', function(data) {
-    // console.log(Date.now(), ' socket on positionUpdate... ');
-
+  socket.on('positionUpdate', function(data) { //-----------------------------
     if (players[data.id] !== 'dead') {
       var dataKeys = Object.keys(data);
       dataKeys.map(function(curKey) {
@@ -86,26 +82,13 @@ io.sockets.on('connection', function(socket) {
           players[data.id][curKey] = data[curKey];
         }
       });
-
-      // console.log(Date.now(), ' broadcasting playerMoved... ');
       socket.broadcast.emit('playerMoved', data);
     }
   });
-
-  // currently this emites 1 point which everyone takes per second
-  // even though it sends an id, the clients currently always take the
-  // point, even if it's not 'theirs' so that it mimics time-based scoring
-  var randPlayerId;
-  setInterval(function() {
-    randPlayerId = 0;
-    console.log('emitting point', randPlayerId);
-    socket.emit('pointScored', randPlayerId);
-  }, 1000);
 });
 
 console.log('server running on port ', port);
 server.listen(port);
-
 exports.players = players;
 exports.Player = Player;
 exports.app = app;
