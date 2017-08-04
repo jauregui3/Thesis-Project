@@ -4,11 +4,13 @@ Network.prototype.initialize = function() {
   console.log('in initialize', this.entity);
   self = this;
   this.player = this.entity; // this.app.root.findByName('Player');
+  window.player = this.player;
+  this.players = [];
   this.other = this.app.root.findByName('Other');
 
   if (window.socket === undefined) {
-    //window.socket = io('http://localhost:8081');
-    window.socket = io('http://pond-game.herokuapp.com');
+    window.socket = io('http://localhost:8081');
+    //window.socket = io('http://pond-game.herokuapp.com');
   }
 
   this.socket = window.socket;
@@ -61,13 +63,26 @@ Network.prototype.addPlayer = function(data) {
 };
 
 Network.prototype.createPlayerEntity = function(data) {
-
-  var doesIdExist = this.players.reduce(function(accum, cur) {
-    if (cur.id === data.id) {
-      accum = true;
-    }
-    return accum;
-  }, false);
+    // wrapped:
+    /*
+        var doesIdExist = this.players.reduce(function(accum, cur) {
+        if (cur.id === data.id) {
+          accum = true;
+        }
+        return accum;
+      }, false);
+      
+    in an 'if(this.player){...} to remove an error: Cannot read property 'reduce' of undefined, line 65
+    */
+  var doesIdExist;
+  if (this.players) {
+      doesIdExist = this.players.reduce(function(accum, cur) {
+      if (cur.id === data.id) {
+        accum = true;
+      }
+      return accum;
+    }, false);
+  }
 
   console.log('want to create ball, id=', data.id, data !== undefined, data !== 'dead', doesIdExist === false, data.entity === null);
   if (data !== undefined && data !== 'dead' && (doesIdExist === false || data.entity === null)) {
@@ -92,7 +107,7 @@ Network.prototype.createPlayerEntity = function(data) {
 };
 
 Network.prototype.movePlayer = function (data) {
-  console.log('movePlayer: ', data.id, this.initialized, this === self, this.players);//this.players[data.id], this.players[data.id].entity);
+  // console.log('movePlayer: ', data.id, this.initialized, this === self, this.players);//this.players[data.id], this.players[data.id].entity);
   if (this.initialized && this.players[data.id] && this.players[data.id].entity) {
     //console.log('movePlayer, actually moving: ', data.id);
     this.players[data.id].entity.rigidbody.teleport(data.x, data.y, data.z);
