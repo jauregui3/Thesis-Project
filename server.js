@@ -1,7 +1,6 @@
 require('dotenv').config();
 var express = require('express');
 var app = express();
-//var server = require('http').createServer();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var port = process.env.PORT || 8081;
@@ -33,17 +32,16 @@ function Player (id) {
 
 io.sockets.on('connection', function(socket) {
 
-  socket.on('initialize', function(nickName) { //-----------------------------
+  socket.on('initialize', function(nickName) {
     var idNum = players.length;
     var newPlayer = new Player (idNum);
     newPlayer.nickName = nickName;
     players.push(newPlayer);
+    
     redis.zadd('scoreboard', 0, '' + idNum + ' ' + nickName);
     socket.emit('playerData', {id: idNum, players: players});
     socket.broadcast.emit('playerJoined', newPlayer);
-
-    // initial array
-    // send out current leaderboard data
+    
     var initialCallback = function(err, res) {
       if (err) {
         console.log(err);
@@ -55,7 +53,7 @@ io.sockets.on('connection', function(socket) {
     redis.zrevrangebyscore('scoreboard', '+inf', '-inf', 'WITHSCORES', initialCallback);
   });
 
-  socket.on('deletePlayer', function(id, lastCollision) { //---------------------------------
+  socket.on('deletePlayer', function(id, lastCollision) {
     redis.zrem('scoreboard', '' + id + ' ' + players[id].nickName);
     var playerGettingPoint = '' + lastCollision + ' ' + players[lastCollision].nickName;
     if (players[lastCollision] !== 'dead') {
@@ -63,7 +61,6 @@ io.sockets.on('connection', function(socket) {
     }
     players[id] = 'dead';
 
-    // send out current leaderboard data
     var leaderboardCallback = function(err, res) {
       if (err) {
         console.log(err);
