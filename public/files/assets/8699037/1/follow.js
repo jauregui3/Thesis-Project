@@ -22,10 +22,8 @@ Follow.prototype.updateTarget = function(target) {
 };
 
 Follow.prototype.update = function(dt) {
-  // console.log('THIS INSIDE OF FOLLOW >>>>>', this);
   if (!this.target) return;
-  // console.log('THIS.TARGET AFTER IF STATEMENT>>>>>', this.target);
-
+  
   // get the position of the target entity
   var pos = this.target.getPosition();
 
